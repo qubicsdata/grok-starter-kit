@@ -1,0 +1,20 @@
+{
+  "name": "self-evolution-companion",
+  "version": "1.0.0",
+  "description": "Quality feedback loop \u2014 score agent outputs, journal results, propose prompt improvements with mandatory human approval.",
+  "category": "productivity",
+  "author": {
+    "name": "<your-name>",
+    "email": "you@example.com"
+  },
+  "keywords": [
+    "evolution",
+    "quality",
+    "feedback",
+    "scoring",
+    "improvement"
+  ],
+  "requires": [
+    "ai-baseline"
+  ]
+}

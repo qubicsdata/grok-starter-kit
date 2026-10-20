@@ -1,0 +1,5 @@
+{
+  "name": "stray-dirty",
+  "version": "0.0.0",
+  "description": "Calibration fixture: a plugin polluted with stray build artifacts — check-stray-artifacts must find >=1."
+}

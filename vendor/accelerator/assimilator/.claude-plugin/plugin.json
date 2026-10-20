@@ -1,0 +1,21 @@
+{
+  "name": "assimilator",
+  "version": "1.0.0",
+  "description": "Ingests foreign agents, skills, and plugins (Claude plugin, Cursor rule, raw system prompt, OpenAI tool spec) and converts them into conformant accelerator plugins. Also extracts reusable techniques for fleet-wide adoption.",
+  "category": "development",
+  "author": {
+    "name": "<your-name>",
+    "email": "you@example.com"
+  },
+  "license": "MIT",
+  "keywords": [
+    "assimilator",
+    "importer",
+    "converter",
+    "foreign-agent",
+    "plugin-builder",
+    "meta-agent",
+    "accelerator"
+  ],
+  "kind": "build-tool"
+}

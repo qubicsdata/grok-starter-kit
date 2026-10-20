@@ -1,0 +1,22 @@
+{
+  "name": "sap-migration-companion",
+  "version": "1.0.0",
+  "description": "SAP domain intelligence for ECC/S4 consolidation: source profiling, extraction advisory, migration-object mapping, cross-system harmonization, key mapping, and load advisory.",
+  "category": "data",
+  "author": {
+    "name": "<your-name>",
+    "email": "you@example.com"
+  },
+  "keywords": [
+    "sap",
+    "ecc",
+    "s4hana",
+    "migration",
+    "mapping",
+    "harmonization",
+    "lakeflow"
+  ],
+  "requires": [
+    "ai-baseline"
+  ]
+}

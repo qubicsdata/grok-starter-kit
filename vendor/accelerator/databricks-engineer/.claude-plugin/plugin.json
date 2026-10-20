@@ -1,0 +1,12 @@
+{
+  "name": "databricks-engineer",
+  "version": "1.0.0",
+  "description": "Databricks platform capability — builds Lakeflow Declarative Pipelines, executes SQL, authors PySpark, governs Unity Catalog, deploys Asset Bundles.",
+  "category": "data",
+  "author": {
+    "name": "<your-name>",
+    "email": "you@example.com"
+  },
+  "requires": ["ai-baseline"],
+  "keywords": ["databricks", "lakeflow", "pipelines", "unity-catalog", "pyspark", "asset-bundles"]
+}

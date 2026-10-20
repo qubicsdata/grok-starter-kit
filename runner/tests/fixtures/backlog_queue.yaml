@@ -1,0 +1,58 @@
+# Synthetic backlog queue for test_backlog.py (example data only). {WT} is replaced by a temp worktree.
+version: 1
+updated: 2026-10-15
+jobs:
+  - id: X1
+    title: "P2 docs job # not a comment"   # a real comment after a quoted value
+    priority: P2
+    task_type: analysis/docs
+    model: sonnet
+    channel: direct
+    worktree: {WT}
+    status: queued
+  - id: X2
+    title: P1 implementation job
+    priority: P1
+    task_type: implement
+    model: opus
+    effort: high
+    channel: direct
+    worktree: {WT}
+    status: queued
+  - id: X3
+    title: script-channel job (no prompt, never dispatched)
+    priority: P1
+    task_type: docs
+    channel: script
+    worktree: {WT}
+    status: queued
+  - id: X4
+    title: follow-up of X2
+    priority: P1
+    task_type: docs
+    model: sonnet
+    depends_on: [X2]
+    channel: direct
+    worktree: {WT}
+    status: queued
+  - id: X5
+    title: low-priority job
+    priority: P3
+    task_type: docs
+    channel: direct
+    worktree: {WT}
+    status: queued
+  - id: X6
+    title: worktree not prepared
+    priority: P1
+    task_type: docs
+    channel: direct
+    worktree: /home/user/example-missing-worktree
+    status: queued
+  - id: X7
+    title: blocked job
+    priority: P1
+    task_type: docs
+    channel: direct
+    worktree: {WT}
+    status: blocked

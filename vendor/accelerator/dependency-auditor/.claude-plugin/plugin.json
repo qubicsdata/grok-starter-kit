@@ -1,0 +1,21 @@
+{
+  "name": "dependency-auditor",
+  "version": "1.0.0",
+  "description": "Static dependency analysis: license compliance, CVE surface (advisory-based), freshness classification, upgrade path planning, and supply chain risk — across 11 ecosystems. No live scanning.",
+  "author": {
+    "name": "<your-name>",
+    "email": "you@example.com"
+  },
+  "requires": [
+    "ai-baseline"
+  ],
+  "category": "security",
+  "keywords": [
+    "dependencies",
+    "license",
+    "cve",
+    "supply-chain",
+    "freshness",
+    "upgrade"
+  ]
+}

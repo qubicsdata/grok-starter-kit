@@ -1,0 +1,213 @@
+#!/usr/bin/env python3
+"""Queue runner CLI (cr). See ../DESIGN.md. Config: CR_CONFIG, else router.json in the runner dir of KIT_HOME."""
+import argparse, json, os, sys, time
+sys.dont_write_bytecode = True  # never write crlib/__pycache__ into the kit tree
+sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))  # kit layout: crlib/ sits next to this file in bin/
+from crlib import common, route as R, runlog, usage as U, sched as S, backlog as B, policy as P
+
+# `cr config --tsv`: the values run-claude.sh needs, one KEY<TAB>value line each (keys as in router.json).
+SCRIPT_KEYS = (("runner", "env_file"), ("runner", "flags_file"), ("runner", "bash_env_file"),
+               ("runner", "prompts_dir"), ("paths", "logs"), ("runner", "mcp_cleanup_pattern"))
+
+
+def start_refusal(cfg):
+    """Why `cr sched loop` / `cr sched tick` must not start anything, or None. Checked before the pidfile, the
+    scheduler log, any /usage probe and any launch. Subscription login only: ANTHROPIC_API_KEY is refused even
+    when empty, whatever runner.refuse_api_key says. Only the JSON value true enables the runner."""
+    if "ANTHROPIC_API_KEY" in os.environ:
+        return 99, "ANTHROPIC_API_KEY is set; the runner uses your Claude subscription login only. Unset it first."
+    if not P.enabled(cfg):
+        return 4, ("runner.enabled is not true in router.json: the runner stays off until you enable it "
+                   "(see runner/TERMS-NOTICE.md)")
+    return None
+
+
+def main(argv=None):
+    ap = argparse.ArgumentParser(prog="cr")
+    sp = ap.add_subparsers(dest="cmd", required=True)
+    r = sp.add_parser("route")
+    r.add_argument("--task-type"); r.add_argument("--model"); r.add_argument("--fallback-model")
+    r.add_argument("--allow-haiku", action="store_true"); r.add_argument("--tsv", action="store_true")
+    r.add_argument("--effort"); r.add_argument("--experiment", action="append", default=[])
+    ls = sp.add_parser("log-start")
+    for a in ("--run-id", "--label", "--cwd", "--output-format", "--route-json", "--pid"):
+        ls.add_argument(a)
+    lf = sp.add_parser("log-finish")
+    for a in ("--run-id", "--out", "--format", "--json-out"):
+        lf.add_argument(a)
+    lf.add_argument("--rc", type=int)
+    us = sp.add_parser("usage")
+    us.add_argument("action", choices=["status", "poll", "calibrate", "loop", "blocks"])
+    us.add_argument("--json", action="store_true"); us.add_argument("--interval", type=float)
+    us.add_argument("--screen-file", help="parse a saved /usage capture instead of probing")
+    q = sp.add_parser("queue")
+    q.add_argument("action", choices=["add", "list"])
+    q.add_argument("--task-type"); q.add_argument("--cwd"); q.add_argument("--prompt-file")
+    q.add_argument("--priority", type=int, default=0); q.add_argument("--critical", action="store_true")
+    q.add_argument("--heavy", action="store_true"); q.add_argument("--model"); q.add_argument("--label")
+    sc = sp.add_parser("sched")
+    sc.add_argument("action", choices=["tick", "loop", "status", "stop"])
+    sc.add_argument("--dry-run", action="store_true"); sc.add_argument("--no-probe", action="store_true")
+    sc.add_argument("--interval", type=float, default=60)
+    sc.add_argument("--pidfile", help="loop/stop: default router.json runner.pidfile")
+    sc.add_argument("--stop-file", help="loop/stop: default router.json runner.stop_file")
+    bl = sp.add_parser("backlog")
+    bl.add_argument("action", choices=["status"])
+    bl.add_argument("--json", action="store_true")
+    cf = sp.add_parser("config")
+    cf.add_argument("--tsv", action="store_true", required=True)
+    a = ap.parse_args(argv)
+    try:
+        cfg = common.load_config()
+    except ValueError as e:  # an unresolved ${KIT_HOME} or unknown placeholder: never a built-in path
+        print("config error: %s" % e, file=sys.stderr)
+        return 2
+
+    if a.cmd == "config":
+        for sect, key in SCRIPT_KEYS:
+            v = (cfg.get(sect) or {}).get(key)
+            v = "" if v is None else v
+            if not isinstance(v, str) or "\n" in v or "\t" in v:
+                print("config error: %s.%s must be a one-line string" % (sect, key), file=sys.stderr)
+                return 2
+            print("%s.%s\t%s" % (sect, key, v))
+    elif a.cmd == "route":
+        try:
+            info = R.route(cfg, a.task_type, a.model, os.environ.get("CLAUDE_ROUTE_MODEL") or None, a.fallback_model,
+                           a.allow_haiku or os.environ.get("CLAUDE_ROUTE_ALLOW_HAIKU") == "1",
+                           os.environ.get("CLAUDE_ROUTE_SUBAGENT_MODEL") or None, a.effort,
+                           a.experiment + [e for e in os.environ.get("CLAUDE_ROUTE_EXPERIMENTS", "").split(",") if e])
+        except R.RouteError as e:
+            print("route error: %s" % e, file=sys.stderr)
+            return 2
+        if a.tsv:  # line 1: route JSON; then ARG<TAB>x / ENV<TAB>k=v lines for the runner
+            print(json.dumps(info, separators=(",", ":")))
+            for x in R.claude_args(info):
+                if "\n" in x or "\t" in x:
+                    print("route error: tab/newline in argument", file=sys.stderr)
+                    return 2
+                print("ARG\t" + x)
+            if info["subagent_model"]:
+                print("ENV\tCLAUDE_CODE_SUBAGENT_MODEL=" + info["subagent_model"])
+        else:
+            print(json.dumps(info, indent=1))
+    elif a.cmd == "log-start":
+        info = json.loads(a.route_json) if a.route_json else {"source": "default", "model": None,
+                                                              "reason": "no routing options: CLI default model (no --model passed)"}
+        runlog.log_start(cfg, a.run_id, a.label, info, a.cwd, a.output_format, int(a.pid) if a.pid else None)
+    elif a.cmd == "log-finish":
+        runlog.log_finish(cfg, a.run_id, a.rc, a.out, a.format, a.json_out)
+    elif a.cmd == "usage":
+        if a.action == "poll":
+            txt = open(a.screen_file).read() if a.screen_file else None
+            print(json.dumps(U.poll(cfg, screen_text=txt), indent=1))
+        elif a.action == "calibrate":
+            print(json.dumps(U.calibrate(cfg), indent=1))
+        elif a.action == "loop":
+            # Retired: the scheduler (`cr sched loop`) runs claude -p /usage itself, at most every 30 min.
+            # There is no separate poller.
+            print("cr usage loop is retired: `cr sched loop` probes /usage itself (at most every %s min); "
+                  "use `cr usage poll` for one manual reading" % P.probe_spacing_minutes(cfg), file=sys.stderr)
+            return 2
+        else:
+            st = U.state(cfg)
+            st["effective"] = U.effective(cfg, st)
+            if a.action == "blocks" or a.json:
+                print(json.dumps(st, indent=1))
+            else:
+                print(human(st))
+    elif a.cmd == "queue":
+        if a.action == "add":
+            if not (a.task_type and a.cwd and a.prompt_file):
+                print("queue add needs --task-type --cwd --prompt-file", file=sys.stderr)
+                return 2
+            print(json.dumps(S.enqueue(cfg, a.task_type, a.cwd, a.prompt_file, a.priority, a.critical, a.heavy,
+                                       a.model, a.label), indent=1))
+        else:
+            for st in S.STATES:
+                for j in S.list_jobs(cfg, st):
+                    print("%-8s %s %-10s prio=%s crit=%s heavy=%s %s" % (st, j["id"], j["task_type"], j["priority"],
+                                                                        j["critical"], j["heavy"], j["cwd"]))
+    elif a.cmd == "backlog":
+        c = B.counts(cfg)
+        st = B.load_state(cfg)
+        run = {k: v for k, v in st.items() if v.get("status") == "running"}
+        if a.json:
+            print(json.dumps({"counts": c, "running": run, "runner_pid": _runner_pid(cfg)}, indent=1))
+        else:
+            print("queue: pending %(pending)d  running %(running)d  done %(done)d  failed %(failed)d  blocked %(blocked)d" % c)
+            print("runner pid: %s" % (_runner_pid(cfg) or "not running"))
+            for k, v in sorted(run.items()):
+                print("  running %-6s %-26s pid=%s model=%s started %s attempt %s" % (k, v.get("task_type"), v.get("pid"),
+                      v.get("model") or "(route)", v.get("started"), v.get("attempts", 1)))
+            for k, v in sorted(st.items()):
+                if v.get("status") in ("failed", "retry"):
+                    print("  %-7s %-6s %s" % (v["status"], k, v.get("why", "")))
+    elif a.cmd == "sched":
+        if a.action == "loop" or (a.action == "tick" and not a.dry_run):
+            why = start_refusal(cfg)
+            if why:
+                print("cr sched %s: refusing: %s" % (a.action, why[1]), file=sys.stderr)
+                return why[0]
+        rc = cfg.get("runner", {})
+        pidfile = a.pidfile or rc.get("pidfile") or os.path.join(cfg["paths"]["logs"], "queue-runner.pid")
+        stop_file = a.stop_file or rc.get("stop_file") or os.path.join(cfg["paths"]["logs"], "queue-runner.stop")
+        if a.action == "loop":
+            try:
+                S.loop(cfg, a.interval, probe=not a.no_probe, pidfile=pidfile, stop_file=stop_file)
+            except S.AlreadyRunning as e:
+                print(str(e), file=sys.stderr)
+                return 3
+            except S.RunnerDisabled as e:  # start_refusal above already refused; the loop checks again
+                print("cr sched loop: refusing: %s" % e, file=sys.stderr)
+                return 4
+        elif a.action == "stop":
+            ok, msg = S.stop(pidfile, stop_file)
+            print(msg)
+            return 0 if ok else 1
+        else:
+            dry = a.dry_run or a.action == "status"
+            print(json.dumps(S.tick(cfg, probe=not a.no_probe and not dry, dry_run=dry), indent=1, default=str))
+    return 0
+
+
+def _runner_pid(cfg):
+    p = cfg.get("runner", {}).get("pidfile") or os.path.join(cfg["paths"]["logs"], "queue-runner.pid")
+    pid = S.read_pidfile(p)
+    return pid if pid and S._pid_alive(pid) and S._is_runner(pid) else None
+
+
+def human(st):
+    e = st["effective"]
+    L = ["now %s" % st["now"]]
+    for k in ("session", "weekly"):
+        o = st.get(k)
+        if o:
+            L.append("%-8s %5.1f%% used  resets %s  [%s, %s, age %.0f min%s]" % (
+                k, o["used_pct"], o["resets_at"], "OBSERVED" if not o["reset_passed"] else "reset passed",
+                o["kind"], o["age_min"], ", stale" if o["stale"] else ""))
+        L.append("         effective %.1f%% (%s) resets %s" % (e[k]["pct"], e[k]["basis"], e[k]["resets_at"]))
+    fo, fe = st.get("weekly_fable"), e.get("weekly_fable")
+    if fo:
+        L.append("fable    %5.1f%% used  resets %s  [Fable-only weekly, %s, age %.0f min%s]" % (
+            fo["used_pct"], fo["resets_at"], fo["kind"], fo["age_min"], ", stale" if fo["stale"] else ""))
+    L.append("         effective fable %s" % ("%.1f%% (%s)" % (fe["pct"], fe["basis"]) if fe else "none (no /usage reading)"))
+    L.append("park: %s" % (json.dumps(st["park"]) if st.get("park") else "none"))
+    loc = st.get("local") or {}
+    b = loc.get("block")
+    if b:
+        L.append("local block (INFERRED): start %s expected reset %s weighted %d burn %d/min (output %d/min)" % (
+            b["start"], b["expected_reset"], b["weighted_tokens"], b["burn_weighted_per_min"], b["burn_output_per_min"]))
+        for m, v in b["tokens_by_model"].items():
+            L.append("   %-22s out %9d  in %7d  cache_read %11d  cache_create %9d" % (m, v["output"], v["input"], v["cache_read"], v["cache_creation"]))
+    wk = loc.get("weekly_rolling")
+    if wk:
+        L.append("local rolling 7d (INFERRED): weighted %d" % wk["weighted_tokens"])
+        for m, v in wk["tokens_by_model"].items():
+            L.append("   %-22s out %9d  in %7d  cache_read %11d  cache_create %9d" % (m, v["output"], v["input"], v["cache_read"], v["cache_creation"]))
+    L.append("estimates (budget %s): session %.1f%%, weekly %.1f%%" % (loc.get("budget_source"), loc.get("est_session_pct", 0), loc.get("est_weekly_pct", 0)))
+    return "\n".join(L)
+
+
+if __name__ == "__main__":
+    sys.exit(main())

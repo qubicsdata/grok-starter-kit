@@ -1,0 +1,20 @@
+{
+  "name": "cost-monitor",
+  "version": "1.0.0",
+  "description": "Rich spend tracking on the ai-baseline audit log \u2014 per-app/feature/agent attribution, budget alerts, daily/weekly summaries.",
+  "category": "security",
+  "author": {
+    "name": "<your-name>",
+    "email": "you@example.com"
+  },
+  "keywords": [
+    "cost",
+    "spend",
+    "budget",
+    "attribution",
+    "monitoring"
+  ],
+  "requires": [
+    "ai-baseline"
+  ]
+}

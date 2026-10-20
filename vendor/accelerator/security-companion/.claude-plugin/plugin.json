@@ -1,0 +1,23 @@
+{
+  "name": "security-companion",
+  "version": "1.0.0",
+  "description": "Design-level application-security and threat-modeling companion. Works at the architecture and design stage \u2014 STRIDE threat modeling, trust-boundary mapping, security design review, abuse-case elicitation, and scan-strategy advisory. Cross-links to dev-companion:security-reviewer (code-level) and ops-companion:secrets-auditor (secret scanning).",
+  "category": "security",
+  "author": {
+    "name": "<your-name>",
+    "email": "you@example.com"
+  },
+  "keywords": [
+    "threat-modeling",
+    "STRIDE",
+    "security-design",
+    "trust-boundaries",
+    "attack-surface",
+    "abuse-cases",
+    "appsec"
+  ],
+  "requires": [
+    "ai-baseline"
+  ],
+  "license": "MIT"
+}

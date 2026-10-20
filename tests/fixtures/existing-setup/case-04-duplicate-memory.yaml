@@ -1,0 +1,10 @@
+synthetic: true
+memory:
+  - "never posts on Sundays"
+kit_facts:
+  - "never posts on Sundays"
+  - "posts at most once a day"
+expect:
+  added: ["posts at most once a day"]
+  duplicates_added: 0
+  unchanged: ["never posts on Sundays"]

@@ -1,0 +1,22 @@
+{
+  "name": "data-companion",
+  "version": "1.0.0",
+  "description": "Data engineering review toolkit — schema review, pipeline audit, dbt model review, data quality, data contracts, lineage, naming validation, and adversarial critique.",
+  "author": {
+    "name": "<your-name>",
+    "email": "you@example.com"
+  },
+  "requires": [
+    "ai-baseline"
+  ],
+  "category": "development",
+  "keywords": [
+    "data",
+    "schema",
+    "pipeline",
+    "dbt",
+    "data-quality",
+    "data-contract",
+    "lineage"
+  ]
+}

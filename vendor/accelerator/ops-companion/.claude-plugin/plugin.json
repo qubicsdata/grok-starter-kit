@@ -1,0 +1,22 @@
+{
+  "name": "ops-companion",
+  "version": "1.0.0",
+  "description": "CI/CD pipeline design, IaC review, secrets audit, deployment readiness, monitoring setup, and rollback planning for Claude Code.",
+  "author": {
+    "name": "<your-name>",
+    "email": "you@example.com"
+  },
+  "requires": [
+    "ai-baseline"
+  ],
+  "category": "operations",
+  "keywords": [
+    "ci-cd",
+    "devops",
+    "iac",
+    "secrets",
+    "monitoring",
+    "deployment",
+    "rollback"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "name": "agent-builder",
+  "version": "1.0.0",
+  "description": "A meta-agent that builds, audits, and publishes Claude Code agents and skills. Run /build-agent to generate a plugin from a description or audit an existing one.",
+  "category": "development",
+  "author": {
+    "name": "<your-name>",
+    "email": "you@example.com"
+  },
+  "license": "MIT",
+  "keywords": [
+    "agents",
+    "skills",
+    "plugin-builder",
+    "meta-agent",
+    "accelerator"
+  ],
+  "kind": "build-tool"
+}

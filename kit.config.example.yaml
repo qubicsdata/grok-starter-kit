@@ -1,0 +1,83 @@
+# Starter-kit config. Copy to ${KIT_HOME}/kit.config.yaml. Every value is an example; your Grok Bot fills it
+# from the discovery note and shows it to you before saving.
+kit:
+  home: "${HOME}/grok-kit"            # KIT_HOME: where this kit lives on your box
+  timezone: "UTC"                     # KIT_TZ: set your own, e.g. "Europe/Paris"
+  author_name: "<your-name>"
+  author_email: "you@example.com"
+  homepage: ""                        # optional; empty means "no link"
+  collision_suffix: "-kit"            # appended to a new agent, skill or routine name that already exists
+
+existing_setup:
+  mode: "integrate"                   # integrate (never overwrite) | fresh (empty setup only)
+  current_state_note: "${KIT_HOME}/onboarding/current-state.md"
+
+second_brain:
+  home: "${HOME}/second-brain"        # SB_HOME; point it at your existing notes folder if you have one
+  router_file: "ROUTER.md"            # relative to home
+  channels: ["dance-school", "other-activities"]
+  roots: ["."]                        # folders sb searches, relative to home
+  raw_roots: []                       # searched only with --raw
+  path_defaults:                      # folder -> channel, used only when a note has no channel
+    "dance-school/": "dance-school"
+    "other-activities/": "other-activities"
+  name_hashes: {}                     # optional extra channel detection; empty by default. Keys come from
+                                      # `sb --hash-name` (keyed with your scan key, `sb --init-key`)
+  boost_paths: []                     # path prefixes whose notes rank a little higher
+  doctor:
+    fail_on_untagged: true
+    fail_on_multiple_channels: true
+    fail_on_folder_mismatch: true
+    fail_on_cross_channel_link: true
+    fail_on_missing_router_path: true
+  marketing_links: {}                 # existing campaign or post folder -> second-brain note (link, never copy)
+
+agents:
+  lead:
+    name: "<your primary Grok Bot>"   # existing; never recreated
+  dev_lead:
+    enabled: false
+    name: "dev-lead"
+    extend_existing: ""               # name of your existing coding agent to extend instead
+    sizing_interval_hours: 4
+    sizing_enabled: false             # the dev-lead-sizing routine; separate OK to turn on
+    sizing_hours: "08:00-20:00"       # in kit.timezone; the routine runs only inside this window
+    claude_bin_dir: ""                # folder put first on PATH to find `claude`; empty = already on PATH
+
+skills:
+  sb_lookup: "sb-lookup"
+  content_calendar: "content-calendar-planner"
+  comms_template: "comms-template-writer"
+
+routines:
+  morning_brief:
+    enabled: false
+    name: "morning-brief"
+    merge_into: ""                    # name of your existing daily summary routine, if any
+    time: "07:30"
+    weekdays_only: true
+    quiet_when_unchanged: true
+
+accelerator:
+  enabled: false
+  marketplace_path: "${KIT_HOME}/vendor/accelerator"
+  plugins: ["ai-baseline", "content-companion"]   # start small; ai-baseline first
+  pricing_table_file: "${KIT_HOME}/vendor/accelerator/pricing.json"
+  model_ids_file: "${KIT_HOME}/vendor/accelerator/tools/model-ids.json"
+
+folio:
+  enabled: false
+  source: "${KIT_HOME}/vendor/folio"
+  data_dir: ""                                    # empty = Folio default (XDG data dir on Linux, Application Support on macOS)
+  task_sync: false                                # external task-service sync off
+  machine_profile: "none"                         # optional channel profile; none = no channel restriction
+  migration_allow_list: ""                        # optional; empty = feature off
+  backlog_version: "1.53.0"
+  about:                                          # optional About texts, written to Folio's local config only when set
+    attribution: ""                               # e.g. "Maintained by <your-name>"; empty = not shown
+    website: ""                                   # http(s) address, e.g. kit.homepage; empty = not shown
+    help_url: ""                                  # http(s) address; empty = no help link
+
+runner:
+  enabled: false                                  # see runner/DESIGN.md and runner/TERMS-NOTICE.md
+  config: "${KIT_HOME}/runner/router.json"

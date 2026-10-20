@@ -1,0 +1,214 @@
+{
+  "command": {
+    "command": "pytest -q",
+    "coordinator_note": null,
+    "created_at": 1790000000000,
+    "hidden_characters": false,
+    "id": "dec_0000000000000001",
+    "kind": "permission",
+    "options": [],
+    "participant": "codex:worker-1",
+    "project": "Example rollout",
+    "project_id": "a1b2c3d4e5f60718",
+    "questions": [],
+    "rememberable": true,
+    "request": [
+      {
+        "label": "Command",
+        "value": "pytest -q"
+      },
+      {
+        "label": "Working folder",
+        "value": "/work/example"
+      }
+    ],
+    "sb_project_id": "prj_00000000000000c1",
+    "sb_task_id": "tsk_00000000000000a1",
+    "summary": "pytest -q",
+    "task_id": "0000000000000002",
+    "task_title": "Migrate routing ledger",
+    "title": "codex:worker-1 requests permission"
+  },
+  "copilot_question": {
+    "command": null,
+    "coordinator_note": null,
+    "created_at": 1790000000000,
+    "hidden_characters": false,
+    "id": "dec_0000000000000005",
+    "kind": "question",
+    "options": [
+      "eu-west-1",
+      "us-east-1"
+    ],
+    "participant": null,
+    "project": "Example rollout",
+    "project_id": "a1b2c3d4e5f60718",
+    "questions": [
+      "Which region?"
+    ],
+    "rememberable": false,
+    "request": [
+      {
+        "label": "Question",
+        "value": "Which region?"
+      }
+    ],
+    "sb_project_id": "prj_00000000000000c1",
+    "sb_task_id": null,
+    "summary": "Which region?",
+    "task_id": null,
+    "task_title": null,
+    "title": "question request"
+  },
+  "hidden_characters": {
+    "command": "echo safe\u27e6U+202E\u27e7txt",
+    "coordinator_note": null,
+    "created_at": 1790000000000,
+    "hidden_characters": true,
+    "id": "dec_0000000000000007",
+    "kind": "permission",
+    "options": [],
+    "participant": null,
+    "project": "Example rollout",
+    "project_id": "a1b2c3d4e5f60718",
+    "questions": [],
+    "rememberable": false,
+    "request": [
+      {
+        "label": "Command",
+        "value": "echo safe\u27e6U+202E\u27e7txt"
+      },
+      {
+        "label": "Working folder",
+        "value": "/work/example"
+      }
+    ],
+    "sb_project_id": "prj_00000000000000c1",
+    "sb_task_id": null,
+    "summary": "echo safe\u27e6U+202E\u27e7txt",
+    "task_id": null,
+    "task_title": null,
+    "title": "permission request"
+  },
+  "question_options": {
+    "command": null,
+    "coordinator_note": null,
+    "created_at": 1790000000000,
+    "hidden_characters": false,
+    "id": "dec_0000000000000004",
+    "kind": "question",
+    "options": [
+      "Postgres \u2014 Managed",
+      "SQLite"
+    ],
+    "participant": null,
+    "project": "Example rollout",
+    "project_id": "a1b2c3d4e5f60718",
+    "questions": [
+      "Which database?"
+    ],
+    "rememberable": false,
+    "request": [
+      {
+        "label": "Question",
+        "value": "Which database?"
+      }
+    ],
+    "sb_project_id": "prj_00000000000000c1",
+    "sb_task_id": null,
+    "summary": "Which database?",
+    "task_id": null,
+    "task_title": null,
+    "title": "question request"
+  },
+  "review": {
+    "command": null,
+    "coordinator_note": null,
+    "created_at": 1790000000000,
+    "hidden_characters": false,
+    "id": "dec_0000000000000006",
+    "kind": "review",
+    "options": [],
+    "participant": null,
+    "project": "Example rollout",
+    "project_id": "a1b2c3d4e5f60718",
+    "questions": [],
+    "rememberable": false,
+    "request": [
+      {
+        "label": "Review summary",
+        "value": "Ready for review: ledger moved."
+      }
+    ],
+    "sb_project_id": "prj_00000000000000c1",
+    "sb_task_id": "tsk_ffffffffffffffff",
+    "summary": "Ready for review: ledger moved.",
+    "task_id": null,
+    "task_title": null,
+    "title": "review request"
+  },
+  "unknown_tool": {
+    "command": null,
+    "coordinator_note": "Escalated: external fetch.",
+    "created_at": 1790000000000,
+    "hidden_characters": false,
+    "id": "dec_0000000000000003",
+    "kind": "permission",
+    "options": [],
+    "participant": null,
+    "project": "Example rollout",
+    "project_id": "a1b2c3d4e5f60718",
+    "questions": [],
+    "rememberable": false,
+    "request": [
+      {
+        "label": "Tool",
+        "value": "WebFetch"
+      },
+      {
+        "label": "Input",
+        "value": "{\"url\":\"https://example.com/data\"}"
+      },
+      {
+        "label": "Working folder",
+        "value": "/work/example"
+      }
+    ],
+    "sb_project_id": "prj_00000000000000c1",
+    "sb_task_id": null,
+    "summary": "Tool: WebFetch",
+    "task_id": null,
+    "task_title": null,
+    "title": "permission request"
+  },
+  "write_paths": {
+    "command": null,
+    "coordinator_note": null,
+    "created_at": 1790000000000,
+    "hidden_characters": false,
+    "id": "dec_0000000000000002",
+    "kind": "permission",
+    "options": [],
+    "participant": null,
+    "project": "Example rollout",
+    "project_id": "a1b2c3d4e5f60718",
+    "questions": [],
+    "rememberable": true,
+    "request": [
+      {
+        "label": "Write",
+        "value": "/work/example/config.toml"
+      },
+      {
+        "label": "Working folder",
+        "value": "/work/example"
+      }
+    ],
+    "sb_project_id": "prj_00000000000000c1",
+    "sb_task_id": "tsk_00000000000000a1",
+    "summary": "Write: /work/example/config.toml",
+    "task_id": "0000000000000002",
+    "task_title": "Migrate routing ledger",
+    "title": "permission request"
+  }
+}

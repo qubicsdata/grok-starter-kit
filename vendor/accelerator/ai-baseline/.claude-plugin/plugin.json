@@ -1,0 +1,11 @@
+{
+  "name": "ai-baseline",
+  "version": "1.0.0",
+  "description": "Mandatory baseline for every agent build — audit trail, PII scrub, cost gate, and app/feature attribution.",
+  "category": "security",
+  "author": {
+    "name": "<your-name>",
+    "email": "you@example.com"
+  },
+  "keywords": ["audit", "pii", "cost", "baseline", "compliance"]
+}

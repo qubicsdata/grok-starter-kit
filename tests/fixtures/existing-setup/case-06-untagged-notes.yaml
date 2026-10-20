@@ -1,0 +1,6 @@
+synthetic: true
+files:
+  - {path: notes/example-untagged.md, front_matter: {}}
+expect:
+  doctor_findings: [{path: notes/example-untagged.md, check: 2}]
+  unchanged: [notes/example-untagged.md]

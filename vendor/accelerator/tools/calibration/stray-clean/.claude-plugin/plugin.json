@@ -1,0 +1,5 @@
+{
+  "name": "stray-clean",
+  "version": "0.0.0",
+  "description": "Calibration fixture: a clean plugin layout — check-stray-artifacts must find 0."
+}

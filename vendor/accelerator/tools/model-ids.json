@@ -1,0 +1,22 @@
+{
+  "contract_version": "2.0.0",
+  "updated": "2026-09-04",
+  "policy": "alias",
+  "policy_note": "Agents declare a TIER ALIAS, never a pinned model ID. Claude Code resolves an alias to the current model for that tier at dispatch time, so the fleet inherits new models without a sweep. Pinned IDs are listed as deprecated so any regression fails the gate.",
+  "canonical": {
+    "haiku": "haiku",
+    "sonnet": "sonnet",
+    "opus": "opus"
+  },
+  "allowed": [
+    "haiku",
+    "sonnet",
+    "opus"
+  ],
+  "deprecated": [
+    "claude-haiku-4-5-20251001",
+    "claude-sonnet-4-6",
+    "claude-sonnet-5",
+    "claude-opus-4-8"
+  ]
+}

@@ -1,0 +1,263 @@
+{
+  "darwin": {
+    "calls": [
+      {
+        "argv": [
+          "/usr/bin/osascript",
+          "-e",
+          "on run argv\n  set theTitle to item 1 of argv\n  set theMessage to item 2 of argv\n  set theText to item 3 of argv\n  set wantsText to item 4 of argv\n  set theSeconds to (item 5 of argv) as integer\n  try\n    if wantsText is \"1\" then\n      set outcome to display dialog theMessage with title theTitle default answer theText buttons {\"Deny\", \"Cancel\", \"Approve\"} default button \"Cancel\" cancel button \"Cancel\" giving up after theSeconds with icon caution\n    else\n      set outcome to display dialog theMessage with title theTitle buttons {\"Deny\", \"Cancel\", \"Approve\"} default button \"Cancel\" cancel button \"Cancel\" giving up after theSeconds with icon caution\n    end if\n    if gave up of outcome then return \"cancel\"\n    if wantsText is \"1\" then return (button returned of outcome) & linefeed & (text returned of outcome)\n    return button returned of outcome\n  on error number -128\n    return \"cancel\"\n  end try\nend run",
+          "Folio \u00b7 Switchboard decision",
+          "Project: Example rollout\n\nThe text field comes from the requester; edit it in this dialog before you click.",
+          "note",
+          "1",
+          "120"
+        ],
+        "encoding": "utf-8",
+        "env": {
+          "DISPLAY": ":0",
+          "HOME": "/nonexistent/fixture-home",
+          "LANG": "C.UTF-8",
+          "PATH": "/usr/bin:/bin"
+        },
+        "stdin_devnull": true,
+        "text": true
+      },
+      {
+        "argv": [
+          "/usr/bin/osascript",
+          "-e",
+          "on run argv\n  set theTitle to item 1 of argv\n  set theMessage to item 2 of argv\n  set theText to item 3 of argv\n  set wantsText to item 4 of argv\n  set theSeconds to (item 5 of argv) as integer\n  try\n    if wantsText is \"1\" then\n      set outcome to display dialog theMessage with title theTitle default answer theText buttons {\"Deny\", \"Cancel\", \"Approve\"} default button \"Cancel\" cancel button \"Cancel\" giving up after theSeconds with icon caution\n    else\n      set outcome to display dialog theMessage with title theTitle buttons {\"Deny\", \"Cancel\", \"Approve\"} default button \"Cancel\" cancel button \"Cancel\" giving up after theSeconds with icon caution\n    end if\n    if gave up of outcome then return \"cancel\"\n    if wantsText is \"1\" then return (button returned of outcome) & linefeed & (text returned of outcome)\n    return button returned of outcome\n  on error number -128\n    return \"cancel\"\n  end try\nend run",
+          "T",
+          "M",
+          "",
+          "0",
+          "120"
+        ],
+        "encoding": "utf-8",
+        "env": {
+          "DISPLAY": ":0",
+          "HOME": "/nonexistent/fixture-home",
+          "LANG": "C.UTF-8",
+          "PATH": "/usr/bin:/bin"
+        },
+        "stdin_devnull": true,
+        "text": true
+      },
+      {
+        "argv": [
+          "/usr/bin/osascript",
+          "-e",
+          "on run argv\n  set theTitle to item 1 of argv\n  set theMessage to item 2 of argv\n  set theText to item 3 of argv\n  set wantsText to item 4 of argv\n  set theSeconds to (item 5 of argv) as integer\n  try\n    if wantsText is \"1\" then\n      set outcome to display dialog theMessage with title theTitle default answer theText buttons {\"Deny\", \"Cancel\", \"Approve\"} default button \"Cancel\" cancel button \"Cancel\" giving up after theSeconds with icon caution\n    else\n      set outcome to display dialog theMessage with title theTitle buttons {\"Deny\", \"Cancel\", \"Approve\"} default button \"Cancel\" cancel button \"Cancel\" giving up after theSeconds with icon caution\n    end if\n    if gave up of outcome then return \"cancel\"\n    if wantsText is \"1\" then return (button returned of outcome) & linefeed & (text returned of outcome)\n    return button returned of outcome\n  on error number -128\n    return \"cancel\"\n  end try\nend run",
+          "T",
+          "M\n\nThe text field comes from the requester; edit it in this dialog before you click.",
+          "",
+          "1",
+          "120"
+        ],
+        "encoding": "utf-8",
+        "env": {
+          "DISPLAY": ":0",
+          "HOME": "/nonexistent/fixture-home",
+          "LANG": "C.UTF-8",
+          "PATH": "/usr/bin:/bin"
+        },
+        "stdin_devnull": true,
+        "text": true
+      }
+    ],
+    "outcomes": [
+      {
+        "choice": "approve",
+        "text": "Looks good"
+      },
+      {
+        "choice": "deny",
+        "text": ""
+      },
+      {
+        "choice": "cancel",
+        "text": ""
+      }
+    ]
+  },
+  "linux": {
+    "calls": [
+      {
+        "argv": [
+          "/usr/bin/zenity",
+          "--question",
+          "--title",
+          "Folio \u00b7 Switchboard decision",
+          "--text",
+          "Project: Example rollout\n\nAfter you click Approve or Deny, a second box asks for the note (it comes from the requester; edit it there).",
+          "--ok-label",
+          "Approve",
+          "--cancel-label",
+          "Cancel",
+          "--extra-button",
+          "Deny",
+          "--default-cancel",
+          "--timeout",
+          "120"
+        ],
+        "encoding": "utf-8",
+        "env": {
+          "DISPLAY": ":0",
+          "HOME": "/nonexistent/fixture-home",
+          "LANG": "C.UTF-8",
+          "PATH": "/usr/bin:/bin"
+        },
+        "stdin_devnull": true,
+        "text": true
+      },
+      {
+        "argv": [
+          "/usr/bin/zenity",
+          "--entry",
+          "--title",
+          "Folio \u00b7 Switchboard decision",
+          "--text",
+          "Note (from the requester, editable)",
+          "--entry-text",
+          "pre",
+          "--timeout",
+          "120"
+        ],
+        "encoding": "utf-8",
+        "env": {
+          "DISPLAY": ":0",
+          "HOME": "/nonexistent/fixture-home",
+          "LANG": "C.UTF-8",
+          "PATH": "/usr/bin:/bin"
+        },
+        "stdin_devnull": true,
+        "text": true
+      },
+      {
+        "argv": [
+          "/usr/bin/zenity",
+          "--question",
+          "--title",
+          "T",
+          "--text",
+          "M\n\nAfter you click Approve or Deny, a second box asks for the note (it comes from the requester; edit it there).",
+          "--ok-label",
+          "Approve",
+          "--cancel-label",
+          "Cancel",
+          "--extra-button",
+          "Deny",
+          "--default-cancel",
+          "--timeout",
+          "120"
+        ],
+        "encoding": "utf-8",
+        "env": {
+          "DISPLAY": ":0",
+          "HOME": "/nonexistent/fixture-home",
+          "LANG": "C.UTF-8",
+          "PATH": "/usr/bin:/bin"
+        },
+        "stdin_devnull": true,
+        "text": true
+      },
+      {
+        "argv": [
+          "/usr/bin/zenity",
+          "--entry",
+          "--title",
+          "T",
+          "--text",
+          "Note (from the requester, editable)",
+          "--entry-text",
+          "",
+          "--timeout",
+          "120"
+        ],
+        "encoding": "utf-8",
+        "env": {
+          "DISPLAY": ":0",
+          "HOME": "/nonexistent/fixture-home",
+          "LANG": "C.UTF-8",
+          "PATH": "/usr/bin:/bin"
+        },
+        "stdin_devnull": true,
+        "text": true
+      },
+      {
+        "argv": [
+          "/usr/bin/zenity",
+          "--question",
+          "--title",
+          "T",
+          "--text",
+          "M\n\nAfter you click Approve or Deny, a second box asks for the note (it comes from the requester; edit it there).",
+          "--ok-label",
+          "Approve",
+          "--cancel-label",
+          "Cancel",
+          "--extra-button",
+          "Deny",
+          "--default-cancel",
+          "--timeout",
+          "120"
+        ],
+        "encoding": "utf-8",
+        "env": {
+          "DISPLAY": ":0",
+          "HOME": "/nonexistent/fixture-home",
+          "LANG": "C.UTF-8",
+          "PATH": "/usr/bin:/bin"
+        },
+        "stdin_devnull": true,
+        "text": true
+      },
+      {
+        "argv": [
+          "/usr/bin/zenity",
+          "--question",
+          "--title",
+          "T",
+          "--text",
+          "M\n\nAfter you click Approve or Deny, a second box asks for the note (it comes from the requester; edit it there).",
+          "--ok-label",
+          "Approve",
+          "--cancel-label",
+          "Cancel",
+          "--extra-button",
+          "Deny",
+          "--default-cancel",
+          "--timeout",
+          "120"
+        ],
+        "encoding": "utf-8",
+        "env": {
+          "DISPLAY": ":0",
+          "HOME": "/nonexistent/fixture-home",
+          "LANG": "C.UTF-8",
+          "PATH": "/usr/bin:/bin"
+        },
+        "stdin_devnull": true,
+        "text": true
+      }
+    ],
+    "outcomes": [
+      {
+        "choice": "approve",
+        "text": "edited"
+      },
+      {
+        "choice": "deny",
+        "text": "reason"
+      },
+      {
+        "choice": "cancel",
+        "text": ""
+      },
+      {
+        "choice": "cancel",
+        "text": ""
+      }
+    ]
+  }
+}

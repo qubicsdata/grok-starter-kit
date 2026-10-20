@@ -1,0 +1,25 @@
+{
+  "name": "performance-companion",
+  "version": "1.0.0",
+  "schema_version": "1",
+  "description": "Advisory backend/server-side performance and scalability companion. Owns latency/throughput budgets, profiling guidance, query/DB performance, load testing strategy, caching, concurrency, and CI regression gating. Advisory-only except for a confirm-gated plan document writer.",
+  "category": "development",
+  "author": {
+    "name": "<your-name>",
+    "email": "you@example.com"
+  },
+  "license": "MIT",
+  "readme": "README.md",
+  "requires": [
+    "ai-baseline"
+  ],
+  "keywords": [
+    "performance",
+    "scalability",
+    "load-testing",
+    "profiling",
+    "caching",
+    "slo",
+    "backend"
+  ]
+}

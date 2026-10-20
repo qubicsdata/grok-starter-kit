@@ -1,0 +1,20 @@
+{
+  "name": "workspace-companion",
+  "version": "1.0.0",
+  "description": "Cross-repo workspace mapping \u2014 service dependency graph, large-codebase navigation, and dependency-ordered cross-repo change planning. Backed by an auto-bootstrapped .accelerator-workspace.yaml manifest.",
+  "category": "development",
+  "author": {
+    "name": "<your-name>",
+    "email": "you@example.com"
+  },
+  "keywords": [
+    "monorepo",
+    "multi-repo",
+    "microservices",
+    "dependency-graph",
+    "cross-repo"
+  ],
+  "requires": [
+    "ai-baseline"
+  ]
+}

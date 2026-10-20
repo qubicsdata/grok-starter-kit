@@ -1,0 +1,100 @@
+{
+  "command_remember_cli": [
+    "Project: Example rollout",
+    "Task: Migrate routing ledger",
+    "Agent: codex:worker-1",
+    "Kind: permission",
+    "",
+    "Command: pytest -q",
+    "Working folder: /work/example",
+    "",
+    "And remember this exact command for the rest of the task.",
+    "",
+    "Requested: approve (via cli:codex)"
+  ],
+  "command_ui": [
+    "Project: Example rollout",
+    "Task: Migrate routing ledger",
+    "Agent: codex:worker-1",
+    "Kind: permission",
+    "",
+    "Command: pytest -q",
+    "Working folder: /work/example",
+    "",
+    "Requested: deny (via ui)"
+  ],
+  "copilot_question": [
+    "Project: Example rollout",
+    "Agent: unknown",
+    "Kind: question",
+    "",
+    "Question: Which region?",
+    "",
+    "Offered options (the answer is free text):",
+    "1. eu-west-1",
+    "2. us-east-1",
+    "",
+    "Requested: answer (via cli:copilot)"
+  ],
+  "hidden_characters": [
+    "Project: Example rollout",
+    "Agent: unknown",
+    "Kind: permission",
+    "",
+    "Hidden formatting characters were replaced with \u27e6U+\u2026\u27e7 markers.",
+    "",
+    "Command: echo safe\u27e6U+202E\u27e7txt",
+    "Working folder: /work/example",
+    "",
+    "Requested: approve (via ui)"
+  ],
+  "question_options": [
+    "Project: Example rollout",
+    "Agent: unknown",
+    "Kind: question",
+    "",
+    "Question: Which database?",
+    "",
+    "Offered options (the answer is free text):",
+    "1. Postgres \u2014 Managed",
+    "2. SQLite",
+    "",
+    "Requested: answer (via ui)"
+  ],
+  "review": [
+    "Project: Example rollout",
+    "Task: tsk_ffffffffffffffff",
+    "Agent: unknown",
+    "Kind: review",
+    "",
+    "Review summary: Ready for review: ledger moved.",
+    "",
+    "Requested: approve (via ui)"
+  ],
+  "unknown_tool_note": [
+    "Project: Example rollout",
+    "Agent: unknown",
+    "Kind: permission",
+    "",
+    "Tool: WebFetch",
+    "Input: {\"url\":\"https://example.com/data\"}",
+    "Working folder: /work/example",
+    "",
+    "Coordinator's note (agent-written): Escalated: external fetch.",
+    "",
+    "Requested: approve (via ui)"
+  ],
+  "write_paths_remember": [
+    "Project: Example rollout",
+    "Task: Migrate routing ledger",
+    "Agent: unknown",
+    "Kind: permission",
+    "",
+    "Write: /work/example/config.toml",
+    "Working folder: /work/example",
+    "",
+    "And remember this exact permission for the rest of the task.",
+    "",
+    "Requested: approve (via cli)"
+  ]
+}

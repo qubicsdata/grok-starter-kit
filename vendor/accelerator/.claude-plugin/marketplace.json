@@ -1,0 +1,679 @@
+{
+  "name": "accelerator",
+  "owner": {
+    "name": "<your-name>",
+    "email": "you@example.com"
+  },
+  "metadata": {
+    "description": "The Accelerator plugin suite — turns a bare project into a governed, production-ready codebase. 34 composable plugins wired to a shared ai-baseline substrate (audit trail, PII scrub, cost gate).",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "agent-builder",
+      "source": "./agent-builder",
+      "description": "A meta-agent that builds, audits, and publishes Claude Code agents and skills. Run /build-agent to generate a plugin from a description or audit an existing one.",
+      "version": "1.0.0",
+      "category": "development",
+      "author": {
+        "name": "<your-name>",
+        "email": "you@example.com"
+      },
+      "keywords": [
+        "agents",
+        "skills",
+        "plugin-builder",
+        "meta-agent",
+        "accelerator"
+      ]
+    },
+    {
+      "name": "ai-baseline",
+      "source": "./ai-baseline",
+      "description": "Mandatory baseline for every agent build — audit trail, PII scrub, cost gate, and app/feature attribution.",
+      "version": "1.0.0",
+      "category": "security",
+      "author": {
+        "name": "<your-name>",
+        "email": "you@example.com"
+      },
+      "keywords": [
+        "audit",
+        "pii",
+        "cost",
+        "baseline",
+        "compliance"
+      ]
+    },
+    {
+      "name": "ai-eval-companion",
+      "source": "./ai-eval-companion",
+      "description": "Advisory companion for designing repeatable, versioned, CI-gated LLM evaluation protocols — eval set construction, LLM-as-judge rubric design, RAG metric decomposition, faithfulness testing, safety red-teaming, and CI regression gates.",
+      "version": "1.0.0",
+      "category": "development",
+      "author": {
+        "name": "<your-name>",
+        "email": "you@example.com"
+      },
+      "keywords": [
+        "llm-evaluation",
+        "ai-quality",
+        "eval-set",
+        "llm-as-judge",
+        "rag-evaluation",
+        "faithfulness",
+        "red-team",
+        "safety-eval",
+        "ci-regression",
+        "golden-dataset"
+      ]
+    },
+    {
+      "name": "api-designer",
+      "source": "./api-designer",
+      "description": "Design-first API workflow plugin: intent → resources → schemas → security → OpenAPI 3.1 spec → contract review → breaking-change detection.",
+      "version": "1.0.0",
+      "category": "development",
+      "author": {
+        "name": "<your-name>",
+        "email": "you@example.com"
+      },
+      "keywords": [
+        "api",
+        "openapi",
+        "design",
+        "contract",
+        "rest",
+        "schema",
+        "versioning"
+      ]
+    },
+    {
+      "name": "assimilator",
+      "source": "./assimilator",
+      "description": "Ingests foreign agents, skills, and plugins (Claude plugin, Cursor rule, raw system prompt, OpenAI tool spec) and converts them into conformant accelerator plugins. Also extracts reusable techniques for fleet-wide adoption.",
+      "version": "1.0.0",
+      "category": "development",
+      "author": {
+        "name": "<your-name>",
+        "email": "you@example.com"
+      },
+      "keywords": [
+        "assimilator",
+        "importer",
+        "converter",
+        "foreign-agent",
+        "plugin-builder",
+        "meta-agent",
+        "accelerator"
+      ]
+    },
+    {
+      "name": "compliance-companion",
+      "source": "./compliance-companion",
+      "description": "EU AI Act high-risk regime tooling — human oversight gates, right-to-explanation, incident reporting, and model cards.",
+      "version": "1.0.0",
+      "category": "security",
+      "author": {
+        "name": "<your-name>",
+        "email": "you@example.com"
+      },
+      "keywords": [
+        "compliance",
+        "eu-ai-act",
+        "oversight",
+        "gdpr",
+        "model-card",
+        "incident"
+      ]
+    },
+    {
+      "name": "content-companion",
+      "source": "./content-companion",
+      "description": "Human-sounding content pipeline — draft, lint, and review docs, READMEs, blog posts, release prose, and marketing copy with an explicit anti-AI-tell discipline.",
+      "version": "1.0.0",
+      "category": "development",
+      "author": {
+        "name": "<your-name>",
+        "email": "you@example.com"
+      },
+      "keywords": [
+        "content",
+        "writing",
+        "humanizer",
+        "linter",
+        "anti-ai-tell",
+        "voice",
+        "documentation"
+      ]
+    },
+    {
+      "name": "cost-monitor",
+      "source": "./cost-monitor",
+      "description": "Rich spend tracking on the ai-baseline audit log — per-app/feature/agent attribution, budget alerts, daily/weekly summaries.",
+      "version": "1.0.0",
+      "category": "security",
+      "author": {
+        "name": "<your-name>",
+        "email": "you@example.com"
+      },
+      "keywords": [
+        "cost",
+        "spend",
+        "budget",
+        "attribution",
+        "monitoring"
+      ]
+    },
+    {
+      "name": "data-companion",
+      "source": "./data-companion",
+      "description": "Data engineering review toolkit — schema review, pipeline audit, dbt model review, data quality, data contracts, lineage, naming validation, and adversarial critique.",
+      "version": "1.0.0",
+      "category": "development",
+      "author": {
+        "name": "<your-name>",
+        "email": "you@example.com"
+      },
+      "keywords": [
+        "data",
+        "schema",
+        "pipeline",
+        "dbt",
+        "data-quality",
+        "data-contract",
+        "lineage"
+      ]
+    },
+    {
+      "name": "databricks-engineer",
+      "source": "./databricks-engineer",
+      "description": "Databricks platform capability — builds Lakeflow Declarative Pipelines, runs SQL via CLI + warehouse, authors PySpark, governs Unity Catalog, deploys Asset Bundles.",
+      "version": "1.0.0",
+      "category": "development",
+      "author": {
+        "name": "<your-name>",
+        "email": "you@example.com"
+      },
+      "keywords": [
+        "databricks",
+        "lakeflow",
+        "unity-catalog",
+        "pyspark",
+        "sql",
+        "asset-bundles",
+        "accelerator"
+      ]
+    },
+    {
+      "name": "dependency-auditor",
+      "source": "./dependency-auditor",
+      "description": "Static dependency analysis: license compliance, CVE surface (advisory-based), freshness classification, upgrade path planning, and supply chain risk — across 11 ecosystems. No live scanning.",
+      "version": "1.0.0",
+      "category": "security",
+      "author": {
+        "name": "<your-name>",
+        "email": "you@example.com"
+      },
+      "keywords": [
+        "dependencies",
+        "license",
+        "cve",
+        "supply-chain",
+        "freshness",
+        "upgrade"
+      ]
+    },
+    {
+      "name": "dev-companion",
+      "source": "./dev-companion",
+      "description": "Ongoing project companion — code review, security review, tech debt analysis, test generation, feature spec, design, ADR capture, and adversarial critique. Eight independent agents, no session setup required.",
+      "version": "1.0.0",
+      "category": "development",
+      "author": {
+        "name": "<your-name>",
+        "email": "you@example.com"
+      },
+      "keywords": [
+        "code-review",
+        "security",
+        "tech-debt",
+        "testing",
+        "spec",
+        "design",
+        "adr"
+      ]
+    },
+    {
+      "name": "frontend-companion",
+      "source": "./frontend-companion",
+      "description": "Front-end engineering quality — component architecture, client state, accessibility, and performance — plus JS/TS/CSS language depth for browser UI codebases.",
+      "version": "1.0.0",
+      "category": "development",
+      "author": {
+        "name": "<your-name>",
+        "email": "you@example.com"
+      },
+      "keywords": [
+        "frontend",
+        "javascript",
+        "typescript",
+        "accessibility",
+        "wcag",
+        "react",
+        "performance",
+        "bundle"
+      ]
+    },
+    {
+      "name": "greenfield-project-initializer",
+      "source": "./greenfield-project-initializer",
+      "description": "Technology-agnostic, question-driven plugin that guides developers through every greenfield project phase — from requirements to working scaffold — producing durable artifacts with no unanswered assumptions.",
+      "version": "1.0.0",
+      "category": "development",
+      "author": {
+        "name": "<your-name>",
+        "email": "you@example.com"
+      },
+      "keywords": [
+        "greenfield",
+        "scaffold",
+        "requirements",
+        "architecture",
+        "adr",
+        "ci"
+      ]
+    },
+    {
+      "name": "incident-companion",
+      "source": "./incident-companion",
+      "description": "Structured incident documentation plugin for engineering teams. Covers runbook generation, escalation templates, timeline reconstruction, post-mortem authoring, and adversarial post-mortem critique — with blameless culture enforced on every artifact.",
+      "version": "1.0.0",
+      "category": "operations",
+      "author": {
+        "name": "<your-name>",
+        "email": "you@example.com"
+      },
+      "keywords": [
+        "incident",
+        "runbook",
+        "escalation",
+        "postmortem",
+        "timeline",
+        "sre",
+        "blameless"
+      ]
+    },
+    {
+      "name": "legacy-modernizer",
+      "source": "./legacy-modernizer",
+      "description": "Analyzes an existing codebase and produces a phased migration roadmap: dependency modernization, framework upgrades, pattern replacement, and technical debt sequencing — with every phase leaving the project in a buildable state.",
+      "version": "1.0.0",
+      "category": "development",
+      "author": {
+        "name": "<your-name>",
+        "email": "you@example.com"
+      },
+      "keywords": [
+        "legacy",
+        "modernization",
+        "migration",
+        "upgrade",
+        "tech-debt",
+        "roadmap"
+      ]
+    },
+    {
+      "name": "memory-companion",
+      "source": "./memory-companion",
+      "description": "Cross-session, cross-plugin persistent memory backed by a file-based key-value store at .ai-memory/.",
+      "version": "1.0.0",
+      "category": "productivity",
+      "author": {
+        "name": "<your-name>",
+        "email": "you@example.com"
+      },
+      "keywords": [
+        "memory",
+        "persistence",
+        "cross-session",
+        "context"
+      ]
+    },
+    {
+      "name": "migration-conductor",
+      "source": "./migration-conductor",
+      "description": "Migration lifecycle — wave planning, reconciliation suites and high-volume execution, DQ gates between layers, evidence-gated cutover runbooks.",
+      "version": "1.0.0",
+      "category": "operations",
+      "author": {
+        "name": "<your-name>",
+        "email": "you@example.com"
+      },
+      "keywords": [
+        "migration",
+        "reconciliation",
+        "cutover",
+        "data-quality",
+        "waves",
+        "accelerator"
+      ]
+    },
+    {
+      "name": "observability-companion",
+      "source": "./observability-companion",
+      "description": "Structured telemetry on the ai-baseline audit log — per-agent metrics, SLO monitoring, and invocation traces.",
+      "version": "1.0.0",
+      "category": "security",
+      "author": {
+        "name": "<your-name>",
+        "email": "you@example.com"
+      },
+      "keywords": [
+        "observability",
+        "metrics",
+        "slo",
+        "telemetry",
+        "audit"
+      ]
+    },
+    {
+      "name": "onboarding-guide",
+      "source": "./onboarding-guide",
+      "description": "Reads an existing codebase and generates a practical docs/onboarding.md covering architecture, entry points, data flow, local setup, testing, key concepts, and common gotchas. Eight agents in a pipeline with sensitive-content scrub as a mandatory pre-output gate.",
+      "version": "1.0.0",
+      "category": "documentation",
+      "author": {
+        "name": "<your-name>",
+        "email": "you@example.com"
+      },
+      "keywords": [
+        "onboarding",
+        "documentation",
+        "architecture",
+        "codebase",
+        "setup"
+      ]
+    },
+    {
+      "name": "ops-companion",
+      "source": "./ops-companion",
+      "description": "CI/CD pipeline design, IaC review, secrets audit, deployment readiness, monitoring setup, and rollback planning for Claude Code.",
+      "version": "1.0.0",
+      "category": "operations",
+      "author": {
+        "name": "<your-name>",
+        "email": "you@example.com"
+      },
+      "keywords": [
+        "ci-cd",
+        "devops",
+        "iac",
+        "secrets",
+        "monitoring",
+        "deployment",
+        "rollback"
+      ]
+    },
+    {
+      "name": "pattern-miner",
+      "source": "./pattern-miner",
+      "description": "Scan a codebase for recurring patterns and conventions, critique them for signal vs. noise, and codify the survivors into a reusable per-project catalog that feeds spec enrichment and code review.",
+      "version": "1.0.0",
+      "category": "development",
+      "author": {
+        "name": "<your-name>",
+        "email": "you@example.com"
+      },
+      "keywords": [
+        "patterns",
+        "conventions",
+        "mining",
+        "catalog",
+        "code-review",
+        "spec-enrichment"
+      ]
+    },
+    {
+      "name": "performance-companion",
+      "source": "./performance-companion",
+      "description": "Advisory backend/server-side performance and scalability companion. Owns latency/throughput budgets, profiling guidance, query/DB performance, load testing strategy, caching, concurrency, and CI regression gating. Advisory-only except for a confirm-gated plan document writer.",
+      "version": "1.0.0",
+      "category": "development",
+      "author": {
+        "name": "<your-name>",
+        "email": "you@example.com"
+      },
+      "keywords": [
+        "performance",
+        "scalability",
+        "load-testing",
+        "profiling",
+        "caching",
+        "slo",
+        "backend"
+      ]
+    },
+    {
+      "name": "polyglot-companion",
+      "source": "./polyglot-companion",
+      "description": "Language-specialist depth across 8 languages (Python, Java, Kotlin, Perl, SQL, Go, Rust, C#) — per-language idioms, security pitfalls, testing conventions, and code review with cited pack rules.",
+      "version": "1.0.0",
+      "category": "development",
+      "author": {
+        "name": "<your-name>",
+        "email": "you@example.com"
+      },
+      "keywords": [
+        "polyglot",
+        "code-review",
+        "python",
+        "java",
+        "kotlin",
+        "perl",
+        "sql",
+        "go",
+        "rust",
+        "csharp",
+        "language-packs",
+        "security"
+      ]
+    },
+    {
+      "name": "product-companion",
+      "source": "./product-companion",
+      "description": "Product planning layer — personas, epics, features, user stories, a prioritized WSJF-lite backlog, and a project passport that tracks lifecycle stage. /build-next drives the top ready story through the accelerate arc: spec → enrich → plan → execute → review.",
+      "version": "1.0.0",
+      "category": "productivity",
+      "author": {
+        "name": "<your-name>",
+        "email": "you@example.com"
+      },
+      "keywords": [
+        "product",
+        "backlog",
+        "epic",
+        "user-story",
+        "persona",
+        "passport",
+        "wsjf",
+        "lifecycle"
+      ]
+    },
+    {
+      "name": "qa-companion",
+      "source": "./qa-companion",
+      "description": "Test and QA strategy companion — advisory layer above individual test authorship covering test shape selection, coverage analysis, flakiness triage, suite auditing, contract testing guidance, and mutation testing. Advisory only; never generates test code.",
+      "version": "0.1.0",
+      "category": "development",
+      "author": {
+        "name": "<your-name>",
+        "email": "you@example.com"
+      },
+      "keywords": [
+        "testing",
+        "qa",
+        "test-strategy",
+        "coverage",
+        "flakiness",
+        "mutation-testing",
+        "contract-testing",
+        "test-pyramid",
+        "suite-audit"
+      ]
+    },
+    {
+      "name": "release-manager",
+      "source": "./release-manager",
+      "description": "Release preparation pipeline — commit analysis, semantic version recommendation, changelog generation, release notes drafting, readiness gate, and tag guidance. Bridges 'code is merged' and 'release is shipped'.",
+      "version": "1.0.0",
+      "category": "development",
+      "author": {
+        "name": "<your-name>",
+        "email": "you@example.com"
+      },
+      "keywords": [
+        "release",
+        "semver",
+        "changelog",
+        "versioning",
+        "conventional-commits"
+      ]
+    },
+    {
+      "name": "sap-migration-companion",
+      "source": "./sap-migration-companion",
+      "description": "SAP migration domain knowledge — source profiling (ECC/S4), extraction and target-load advisory, migration-object mapping, cross-system harmonization, key-mapping/xref design.",
+      "version": "1.0.0",
+      "category": "development",
+      "author": {
+        "name": "<your-name>",
+        "email": "you@example.com"
+      },
+      "keywords": [
+        "sap",
+        "migration",
+        "ecc",
+        "s4hana",
+        "harmonization",
+        "mapping",
+        "accelerator"
+      ]
+    },
+    {
+      "name": "security-companion",
+      "source": "./security-companion",
+      "description": "Design-level application-security and threat-modeling companion. Works at the architecture and design stage — STRIDE threat modeling, trust-boundary mapping, security design review, abuse-case elicitation, and scan-strategy advisory. Cross-links to dev-companion:security-reviewer (code-level) and ops-companion:secrets-auditor (secret scanning).",
+      "version": "1.0.0",
+      "category": "security",
+      "author": {
+        "name": "<your-name>",
+        "email": "you@example.com"
+      },
+      "keywords": [
+        "threat-modeling",
+        "STRIDE",
+        "security-design",
+        "trust-boundaries",
+        "attack-surface",
+        "abuse-cases",
+        "appsec"
+      ]
+    },
+    {
+      "name": "self-evolution-companion",
+      "source": "./self-evolution-companion",
+      "description": "Quality feedback loop — score agent outputs, journal results, propose prompt improvements with mandatory human approval.",
+      "version": "1.0.0",
+      "category": "productivity",
+      "author": {
+        "name": "<your-name>",
+        "email": "you@example.com"
+      },
+      "keywords": [
+        "evolution",
+        "quality",
+        "feedback",
+        "scoring",
+        "improvement"
+      ]
+    },
+    {
+      "name": "teaching-craft",
+      "source": "./teaching-craft",
+      "description": "Workshop subject matter as skills — pedagogy decision rules, reproducible agentic failure-mode demos, agentic prompting patterns, an AI risk taxonomy with exercises, and an annotated prompt corpus. Consumed by workshop-companion agents when authoring sessions.",
+      "version": "1.0.0",
+      "category": "development",
+      "author": {
+        "name": "<your-name>",
+        "email": "you@example.com"
+      },
+      "keywords": [
+        "teaching",
+        "workshop",
+        "pedagogy",
+        "prompting",
+        "responsible-ai",
+        "failure-modes",
+        "curriculum"
+      ]
+    },
+    {
+      "name": "uiux-companion",
+      "source": "./uiux-companion",
+      "description": "UI/UX design quality companion — usability heuristics, design-system consistency, and visual hierarchy evaluated from spec and flow descriptions.",
+      "version": "1.0.0",
+      "category": "development",
+      "author": {
+        "name": "<your-name>",
+        "email": "you@example.com"
+      },
+      "keywords": [
+        "ux",
+        "ui",
+        "design-system",
+        "heuristics",
+        "visual-hierarchy",
+        "design-review"
+      ]
+    },
+    {
+      "name": "workshop-companion",
+      "source": "./workshop-companion",
+      "description": "Instructor-side workshop authoring pipeline — curriculum sequencing by prerequisite graph, per-session lesson design, goal-shaped lab authoring for learner-supplied substrate, instruction-portability dry-running, and mixed-audience track adaptation.",
+      "version": "1.0.0",
+      "category": "development",
+      "author": {
+        "name": "<your-name>",
+        "email": "you@example.com"
+      },
+      "keywords": [
+        "workshop",
+        "curriculum",
+        "lab",
+        "training",
+        "enablement",
+        "instructor",
+        "teaching"
+      ]
+    },
+    {
+      "name": "workspace-companion",
+      "source": "./workspace-companion",
+      "description": "Cross-repo workspace mapping — service dependency graph, large-codebase navigation, and dependency-ordered cross-repo change planning. Backed by an auto-bootstrapped .accelerator-workspace.yaml manifest.",
+      "version": "1.0.0",
+      "category": "development",
+      "author": {
+        "name": "<your-name>",
+        "email": "you@example.com"
+      },
+      "keywords": [
+        "monorepo",
+        "multi-repo",
+        "microservices",
+        "dependency-graph",
+        "cross-repo"
+      ]
+    }
+  ]
+}

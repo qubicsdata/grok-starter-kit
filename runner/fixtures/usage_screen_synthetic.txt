@@ -1,0 +1,15 @@
+  Claude Code v0.0.0-example · example-model · Example Plan · /home/user/example-project
+  ~/example-project (example)
+   Settings:  Status   Config   Usage (tab)
+
+   Current session
+   █████████████████████                              42% used
+   Resets 3:00pm (UTC)
+
+   Current week (all models)
+   ███████████████████████████████                    61% used
+   Resets Jan 9, 6:00pm (UTC)
+
+   Current week (Fable)
+   ████████████████                                   33% used
+   Resets Jan 9, 6:00pm (UTC)

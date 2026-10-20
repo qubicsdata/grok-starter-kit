@@ -1,0 +1,125 @@
+# Synthetic large backlog queue (example data only): the shape of a long-running queue.
+# Read-only test input for B.parse_queue_yaml (comments, quoting, lists, triggers, groups, stacking).
+version: 1
+owner: example-owner
+updated: "2026-10-15T12:00:00+03:00"
+
+jobs:
+  - id: B01
+    title: "Example core module"
+    priority: P1   # P0-P2 are auto-dispatched
+    task_type: implement
+    model: opus
+    channel: direct
+    worktree: /home/user/example-worktrees/b01
+    status: queued
+  - id: B02
+    title: "Example docs pass"
+    priority: P2
+    task_type: analysis/docs
+    model: sonnet
+    channel: direct
+    worktree: /home/user/example-worktrees/b02
+    status: queued
+    group: example-docs
+  - id: B03
+    title: "Example tests for the core module"
+    priority: P1
+    task_type: test
+    model: opus
+    depends_on: [B01]
+    channel: direct
+    worktree: /home/user/example-worktrees/b03
+    status: queued
+  - id: B04
+    title: "Example security review of B01"
+    priority: P1
+    task_type: security
+    model: opus
+    depends_on: [B01]
+    channel: direct
+    worktree: /home/user/example-worktrees/b04
+    status: queued
+    effort: high
+  - id: B05
+    title: "Example refactor, stacked on B01"
+    priority: P2
+    task_type: refactor
+    model: sonnet
+    depends_on: [B01]
+    channel: direct
+    worktree: /home/user/example-worktrees/b05
+    status: queued
+    stack_on: example/b01-core
+    commit: yes
+  - id: B06
+    title: "Example metrics digest"
+    priority: P2
+    task_type: metrics
+    channel: direct
+    worktree: /home/user/example-worktrees/b06
+    status: queued
+    trigger: weekly-example
+
+  # a comment between jobs
+  - id: B07
+    title: "Example script-only job"
+    priority: P1
+    task_type: docs
+    model: none
+    channel: script
+    worktree: /home/user/example-worktrees/b07
+    status: queued
+    channel_note: "runs outside the runner"
+  - id: B08
+    title: "Example Fable pre-review"
+    priority: P1
+    task_type: fable-pre-review
+    model: fable
+    depends_on: [B03, B04]
+    channel: direct
+    worktree: /home/user/example-worktrees/b08
+    status: queued
+  - id: B09
+    title: "Example rename sweep"
+    priority: P3
+    task_type: rename
+    model: sonnet
+    channel: direct
+    worktree: /home/user/example-worktrees/b09
+    status: queued
+  - id: B10
+    title: "Example rebase"
+    priority: P2
+    task_type: rebase
+    model: sonnet
+    depends_on: [B05]
+    channel: direct
+    worktree: /home/user/example-worktrees/b10
+    status: queued
+    group: example-docs
+  - id: B11
+    title: "Example log triage"
+    priority: P2
+    task_type: log-triage
+    channel: direct
+    worktree: /home/user/example-worktrees/b11
+    status: queued
+    experiment: autocompact
+  - id: B12
+    title: "Example blocked job"
+    priority: P1
+    task_type: docs
+    model: sonnet
+    channel: direct
+    worktree: /home/user/example-worktrees/b12
+    status: blocked
+  - id: B13
+    title: "Example final gate"
+    priority: P0
+    task_type: mechanical
+    model: sonnet
+    depends_on: [B08, B10, B11]
+    channel: direct
+    worktree: /home/user/example-worktrees/b13
+    status: queued

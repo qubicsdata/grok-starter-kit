@@ -1,0 +1,22 @@
+{
+  "name": "api-designer",
+  "version": "1.0.0",
+  "description": "Design-first API workflow plugin: intent → resources → schemas → security → OpenAPI 3.1 spec → contract review → breaking-change detection.",
+  "author": {
+    "name": "<your-name>",
+    "email": "you@example.com"
+  },
+  "requires": [
+    "ai-baseline"
+  ],
+  "category": "development",
+  "keywords": [
+    "api",
+    "openapi",
+    "design",
+    "contract",
+    "rest",
+    "schema",
+    "versioning"
+  ]
+}

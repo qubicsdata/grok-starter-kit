@@ -1,0 +1,13 @@
+{
+  "name": "buggy-plugin",
+  "version": "1.0.0",
+  "description": "Buggy plugin fixture with seeded defects for calibration testing.",
+  "category": "productivity",
+  "author": {
+    "name": "Test Author",
+    "email": "test@example.com"
+  },
+  "keywords": ["test", "calibration"],
+  "requires": ["ai-baseline"],
+  "tags": ["experimental"]
+}

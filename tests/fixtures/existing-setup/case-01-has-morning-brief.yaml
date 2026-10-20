@@ -1,0 +1,7 @@
+synthetic: true
+routines:
+  - {name: example-daily-summary, schedule: "08:00 daily", reads: [calendar, inbox], reports_to: chat}
+expect:
+  routines_created: 0
+  proposals: [{type: merge, into: example-daily-summary}]
+  unchanged: [routines/example-daily-summary]

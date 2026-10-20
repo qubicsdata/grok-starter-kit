@@ -1,0 +1,21 @@
+{
+  "name": "pattern-miner",
+  "version": "1.0.0",
+  "description": "Scan a codebase for recurring patterns and conventions, critique them for signal vs. noise, and codify the survivors into a reusable per-project catalog that feeds spec enrichment and code review.",
+  "category": "development",
+  "author": {
+    "name": "<your-name>",
+    "email": "you@example.com"
+  },
+  "keywords": [
+    "patterns",
+    "conventions",
+    "mining",
+    "catalog",
+    "code-review",
+    "spec-enrichment"
+  ],
+  "requires": [
+    "ai-baseline"
+  ]
+}

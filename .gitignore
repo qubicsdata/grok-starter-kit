@@ -1,0 +1,18 @@
+# Your local settings (copy kit.config.example.yaml to create it).
+/kit.config.yaml
+
+# Runner state: logs and the local backlog stay on your machine.
+/runner/logs/
+/runner/backlog/
+
+# Environment files hold secrets; never commit them.
+*.env
+.env
+
+# The sb scan key lives in ~/.config/grok-kit/, outside every repo; a stray
+# copy is never committed either.
+scan.key
+
+# Python caches.
+__pycache__/
+*.pyc

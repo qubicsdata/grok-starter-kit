@@ -1,0 +1,22 @@
+{
+  "name": "release-manager",
+  "version": "1.0.0",
+  "schema_version": "1",
+  "description": "Release preparation pipeline — commit analysis, semantic version recommendation, changelog generation, release notes drafting, readiness gate, and tag guidance. Bridges 'code is merged' and 'release is shipped'.",
+  "category": "development",
+  "author": {
+    "name": "<your-name>",
+    "email": "you@example.com"
+  },
+  "readme": "README.md",
+  "requires": [
+    "ai-baseline"
+  ],
+  "keywords": [
+    "release",
+    "semver",
+    "changelog",
+    "versioning",
+    "conventional-commits"
+  ]
+}

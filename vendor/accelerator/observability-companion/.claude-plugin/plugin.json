@@ -1,0 +1,20 @@
+{
+  "name": "observability-companion",
+  "version": "1.0.0",
+  "description": "Structured telemetry on the ai-baseline audit log \u2014 per-agent metrics, SLO monitoring, and invocation traces.",
+  "category": "security",
+  "author": {
+    "name": "<your-name>",
+    "email": "you@example.com"
+  },
+  "keywords": [
+    "observability",
+    "metrics",
+    "slo",
+    "telemetry",
+    "audit"
+  ],
+  "requires": [
+    "ai-baseline"
+  ]
+}

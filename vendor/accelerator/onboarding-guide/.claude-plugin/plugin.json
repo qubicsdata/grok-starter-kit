@@ -1,0 +1,22 @@
+{
+  "name": "onboarding-guide",
+  "version": "1.0.0",
+  "schema_version": "1",
+  "description": "Reads an existing codebase and generates a practical docs/onboarding.md covering architecture, entry points, data flow, local setup, testing, key concepts, and common gotchas. Eight agents in a pipeline with sensitive-content scrub as a mandatory pre-output gate.",
+  "category": "documentation",
+  "author": {
+    "name": "<your-name>",
+    "email": "you@example.com"
+  },
+  "readme": "README.md",
+  "requires": [
+    "ai-baseline"
+  ],
+  "keywords": [
+    "onboarding",
+    "documentation",
+    "architecture",
+    "codebase",
+    "setup"
+  ]
+}

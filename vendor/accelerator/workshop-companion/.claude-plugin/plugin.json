@@ -1,0 +1,22 @@
+{
+  "name": "workshop-companion",
+  "version": "1.0.0",
+  "description": "Instructor-side workshop authoring pipeline — curriculum sequencing by prerequisite graph, per-session lesson design, goal-shaped lab authoring for learner-supplied substrate, instruction-portability dry-running, and mixed-audience track adaptation.",
+  "category": "development",
+  "author": {
+    "name": "<your-name>",
+    "email": "you@example.com"
+  },
+  "keywords": [
+    "workshop",
+    "curriculum",
+    "lab",
+    "training",
+    "enablement",
+    "instructor",
+    "teaching"
+  ],
+  "requires": [
+    "ai-baseline"
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "DELETE /api/projects/<id>": [
+    403,
+    {
+      "code": "FORBIDDEN",
+      "error": "Open this workspace with folio ui to authenticate."
+    }
+  ],
+  "GET /api/backup": [
+    403,
+    {
+      "code": "FORBIDDEN",
+      "error": "Open this workspace with folio ui to authenticate."
+    }
+  ],
+  "GET /api/decisions": [
+    403,
+    {
+      "code": "FORBIDDEN",
+      "error": "Open this workspace with folio ui to authenticate."
+    }
+  ],
+  "GET /api/projects/<id>/export": [
+    403,
+    {
+      "code": "FORBIDDEN",
+      "error": "Open this workspace with folio ui to authenticate."
+    }
+  ],
+  "GET /api/session": [
+    403,
+    {
+      "code": "FORBIDDEN",
+      "error": "Open this workspace with folio ui to authenticate."
+    }
+  ],
+  "GET /api/state": [
+    403,
+    {
+      "code": "FORBIDDEN",
+      "error": "Open this workspace with folio ui to authenticate."
+    }
+  ],
+  "PATCH /api/projects/<id>": [
+    403,
+    {
+      "code": "FORBIDDEN",
+      "error": "Open this workspace with folio ui to authenticate."
+    }
+  ],
+  "POST /api/clients": [
+    403,
+    {
+      "code": "FORBIDDEN",
+      "error": "Open this workspace with folio ui to authenticate."
+    }
+  ],
+  "POST /api/projects/<id>/brief": [
+    403,
+    {
+      "code": "FORBIDDEN",
+      "error": "Open this workspace with folio ui to authenticate."
+    }
+  ],
+  "POST /api/shutdown": [
+    403,
+    {
+      "code": "FORBIDDEN",
+      "error": "Open this workspace with folio ui to authenticate."
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "name": "incident-companion",
+  "version": "1.0.0",
+  "description": "Structured incident documentation plugin for engineering teams. Covers runbook generation, escalation templates, timeline reconstruction, post-mortem authoring, and adversarial post-mortem critique — with blameless culture enforced on every artifact.",
+  "category": "operations",
+  "author": {
+    "name": "<your-name>",
+    "email": "you@example.com"
+  },
+  "requires": [
+    "ai-baseline"
+  ],
+  "keywords": [
+    "incident",
+    "runbook",
+    "escalation",
+    "postmortem",
+    "timeline",
+    "sre",
+    "blameless"
+  ]
+}

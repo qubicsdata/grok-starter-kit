@@ -1,0 +1,17 @@
+# Runtime state — do not commit
+.ai-baseline/*.jsonl
+.ai-baseline/budget.json
+.ai-baseline/.session
+.ai-baseline/.audit-cursor.json
+.ai-baseline/.lock
+.ai-baseline/context.json
+.ai-baseline/enrich-result.json
+.ai-baseline/*.tmp
+.ai-evolution/*.jsonl
+.ai-evolution/*.pending
+
+# Build cruft from benchmark artifacts — keep source, drop environments
+**/.venv/
+**/__pycache__/
+**/*.pyc
+**/.pytest_cache/

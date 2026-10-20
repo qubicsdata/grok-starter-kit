@@ -1,0 +1,598 @@
+[
+  {
+    "name": "agent-builder",
+    "version": "1.0.0",
+    "kind": "build-tool",
+    "category": "development",
+    "requires": [],
+    "enricher_prefix": null,
+    "commands": [
+      "build-agent.md"
+    ],
+    "has_baseline": false
+  },
+  {
+    "name": "ai-baseline",
+    "version": "1.0.0",
+    "kind": "runtime",
+    "category": "security",
+    "requires": [],
+    "enricher_prefix": null,
+    "commands": [
+      "accelerate.md",
+      "accelerator.md",
+      "baseline-init.md",
+      "context.md",
+      "enrich.md",
+      "fleet-status.md",
+      "steward.md"
+    ],
+    "has_baseline": true
+  },
+  {
+    "name": "ai-eval-companion",
+    "version": "1.0.0",
+    "kind": "runtime",
+    "category": "development",
+    "requires": [
+      "ai-baseline"
+    ],
+    "enricher_prefix": "EVAL",
+    "commands": [
+      "ai-eval.md",
+      "eval-ci.md",
+      "eval-dataset.md",
+      "eval-plan.md",
+      "faithfulness-eval.md",
+      "llm-judge.md",
+      "rag-eval.md",
+      "safety-eval.md"
+    ],
+    "has_baseline": true
+  },
+  {
+    "name": "api-designer",
+    "version": "1.0.0",
+    "kind": "runtime",
+    "category": "development",
+    "requires": [
+      "ai-baseline"
+    ],
+    "enricher_prefix": "API",
+    "commands": [
+      "api-breaking-changes.md",
+      "api-design.md",
+      "api-intent.md",
+      "api-resources.md",
+      "api-review.md",
+      "api-schemas.md",
+      "api-security.md",
+      "api-spec.md",
+      "api-version.md"
+    ],
+    "has_baseline": true
+  },
+  {
+    "name": "assimilator",
+    "version": "1.0.0",
+    "kind": "build-tool",
+    "category": "development",
+    "requires": [],
+    "enricher_prefix": null,
+    "commands": [
+      "assimilate.md"
+    ],
+    "has_baseline": false
+  },
+  {
+    "name": "compliance-companion",
+    "version": "1.0.0",
+    "kind": "runtime",
+    "category": "security",
+    "requires": [
+      "ai-baseline"
+    ],
+    "enricher_prefix": "COMP",
+    "commands": [
+      "ai-incident.md",
+      "explain.md",
+      "model-card.md",
+      "oversight.md"
+    ],
+    "has_baseline": true
+  },
+  {
+    "name": "content-companion",
+    "version": "1.0.0",
+    "kind": "runtime",
+    "category": "development",
+    "requires": [
+      "ai-baseline"
+    ],
+    "enricher_prefix": "CON",
+    "commands": [
+      "humanize.md",
+      "write.md"
+    ],
+    "has_baseline": true
+  },
+  {
+    "name": "cost-monitor",
+    "version": "1.0.0",
+    "kind": "runtime",
+    "category": "security",
+    "requires": [
+      "ai-baseline"
+    ],
+    "enricher_prefix": "COST",
+    "commands": [
+      "budget-status.md",
+      "cost-report.md"
+    ],
+    "has_baseline": true
+  },
+  {
+    "name": "data-companion",
+    "version": "1.0.0",
+    "kind": "runtime",
+    "category": "development",
+    "requires": [
+      "ai-baseline"
+    ],
+    "enricher_prefix": "DATA",
+    "commands": [
+      "data-contract.md",
+      "data-critique.md",
+      "dbt-review.md",
+      "dq-define.md",
+      "lineage.md",
+      "migration-plan.md",
+      "naming.md",
+      "pipeline-audit.md",
+      "schema-review.md"
+    ],
+    "has_baseline": true
+  },
+  {
+    "name": "databricks-engineer",
+    "version": "1.0.0",
+    "kind": "runtime",
+    "category": "data",
+    "requires": [
+      "ai-baseline"
+    ],
+    "enricher_prefix": "DBX",
+    "commands": [
+      "dbx-deploy.md",
+      "dbx-inspect.md",
+      "dbx-pipeline.md",
+      "dbx-sql.md",
+      "uc-setup.md"
+    ],
+    "has_baseline": true
+  },
+  {
+    "name": "dependency-auditor",
+    "version": "1.0.0",
+    "kind": "runtime",
+    "category": "security",
+    "requires": [
+      "ai-baseline"
+    ],
+    "enricher_prefix": "DEP",
+    "commands": [
+      "audit.md",
+      "cve.md",
+      "freshness.md",
+      "licenses.md",
+      "supply-chain.md",
+      "upgrade.md"
+    ],
+    "has_baseline": true
+  },
+  {
+    "name": "dev-companion",
+    "version": "1.0.0",
+    "kind": "runtime",
+    "category": "development",
+    "requires": [
+      "ai-baseline"
+    ],
+    "enricher_prefix": "DEV",
+    "commands": [
+      "adr.md",
+      "critique.md",
+      "design.md",
+      "review.md",
+      "security.md",
+      "spec.md",
+      "tech-debt.md",
+      "test.md"
+    ],
+    "has_baseline": true
+  },
+  {
+    "name": "frontend-companion",
+    "version": "1.0.0",
+    "kind": "runtime",
+    "category": "development",
+    "requires": [
+      "ai-baseline"
+    ],
+    "enricher_prefix": "FE",
+    "commands": [
+      "a11y-audit.md",
+      "frontend-review.md"
+    ],
+    "has_baseline": true
+  },
+  {
+    "name": "greenfield-project-initializer",
+    "version": "1.0.0",
+    "kind": "runtime",
+    "category": "development",
+    "requires": [
+      "ai-baseline"
+    ],
+    "enricher_prefix": "GF",
+    "commands": [
+      "greenfield-adr.md",
+      "greenfield.md",
+      "requirements.md",
+      "scaffold.md",
+      "sys-design.md",
+      "tech-stack.md"
+    ],
+    "has_baseline": true
+  },
+  {
+    "name": "incident-companion",
+    "version": "1.0.0",
+    "kind": "runtime",
+    "category": "operations",
+    "requires": [
+      "ai-baseline"
+    ],
+    "enricher_prefix": "INC",
+    "commands": [
+      "critique-postmortem.md",
+      "escalation.md",
+      "incident.md",
+      "postmortem.md",
+      "runbook.md",
+      "timeline.md"
+    ],
+    "has_baseline": true
+  },
+  {
+    "name": "legacy-modernizer",
+    "version": "1.0.0",
+    "kind": "runtime",
+    "category": "development",
+    "requires": [
+      "ai-baseline"
+    ],
+    "enricher_prefix": "LEG",
+    "commands": [
+      "modernize-adr.md",
+      "modernize-inventory.md",
+      "modernize-risks.md",
+      "modernize-roadmap.md",
+      "modernize-upgrade-map.md",
+      "modernize.md"
+    ],
+    "has_baseline": true
+  },
+  {
+    "name": "memory-companion",
+    "version": "1.0.0",
+    "kind": "runtime",
+    "category": "productivity",
+    "requires": [
+      "ai-baseline"
+    ],
+    "enricher_prefix": "MEM",
+    "commands": [
+      "forget.md",
+      "recall.md",
+      "remember.md"
+    ],
+    "has_baseline": true
+  },
+  {
+    "name": "migration-conductor",
+    "version": "1.0.0",
+    "kind": "runtime",
+    "category": "data",
+    "requires": [
+      "ai-baseline"
+    ],
+    "enricher_prefix": "MIGC",
+    "commands": [
+      "cutover.md",
+      "dq-gates.md",
+      "migration-status.md",
+      "recon.md",
+      "waves.md"
+    ],
+    "has_baseline": true
+  },
+  {
+    "name": "observability-companion",
+    "version": "1.0.0",
+    "kind": "runtime",
+    "category": "security",
+    "requires": [
+      "ai-baseline"
+    ],
+    "enricher_prefix": "OBS",
+    "commands": [
+      "observe.md",
+      "slo-status.md",
+      "trace.md"
+    ],
+    "has_baseline": true
+  },
+  {
+    "name": "onboarding-guide",
+    "version": "1.0.0",
+    "kind": "runtime",
+    "category": "documentation",
+    "requires": [
+      "ai-baseline"
+    ],
+    "enricher_prefix": "ONB",
+    "commands": [
+      "onboarding.md"
+    ],
+    "has_baseline": true
+  },
+  {
+    "name": "ops-companion",
+    "version": "1.0.0",
+    "kind": "runtime",
+    "category": "operations",
+    "requires": [
+      "ai-baseline"
+    ],
+    "enricher_prefix": "OPS",
+    "commands": [
+      "deploy-checklist.md",
+      "iac-review.md",
+      "monitoring.md",
+      "ops.md",
+      "pipeline.md",
+      "rollback.md",
+      "secrets-audit.md"
+    ],
+    "has_baseline": true
+  },
+  {
+    "name": "pattern-miner",
+    "version": "1.0.0",
+    "kind": "runtime",
+    "category": "development",
+    "requires": [
+      "ai-baseline"
+    ],
+    "enricher_prefix": "PAT",
+    "commands": [
+      "mine-patterns.md",
+      "pattern-catalog.md"
+    ],
+    "has_baseline": true
+  },
+  {
+    "name": "performance-companion",
+    "version": "1.0.0",
+    "kind": "runtime",
+    "category": "development",
+    "requires": [
+      "ai-baseline"
+    ],
+    "enricher_prefix": "PERF",
+    "commands": [
+      "caching-strategy.md",
+      "concurrency-review.md",
+      "load-test.md",
+      "perf-plan.md",
+      "perf-strategy.md",
+      "profiling-guide.md",
+      "query-perf.md",
+      "regression-gate.md"
+    ],
+    "has_baseline": true
+  },
+  {
+    "name": "polyglot-companion",
+    "version": "1.0.0",
+    "kind": "runtime",
+    "category": "development",
+    "requires": [
+      "ai-baseline"
+    ],
+    "enricher_prefix": "POLY",
+    "commands": [
+      "polyglot-review.md"
+    ],
+    "has_baseline": true
+  },
+  {
+    "name": "product-companion",
+    "version": "1.0.0",
+    "kind": "runtime",
+    "category": "productivity",
+    "requires": [
+      "ai-baseline"
+    ],
+    "enricher_prefix": "PLAN",
+    "commands": [
+      "backlog.md",
+      "build-next.md",
+      "epic.md",
+      "feature.md",
+      "persona.md",
+      "product-init.md",
+      "story.md"
+    ],
+    "has_baseline": true
+  },
+  {
+    "name": "qa-companion",
+    "version": "0.1.0",
+    "kind": "runtime",
+    "category": "development",
+    "requires": [
+      "ai-baseline"
+    ],
+    "enricher_prefix": "QA",
+    "commands": [
+      "contract-test.md",
+      "coverage-review.md",
+      "flaky-triage.md",
+      "mutation-advice.md",
+      "qa-strategy.md",
+      "suite-review.md"
+    ],
+    "has_baseline": true
+  },
+  {
+    "name": "release-manager",
+    "version": "1.0.0",
+    "kind": "runtime",
+    "category": "development",
+    "requires": [
+      "ai-baseline"
+    ],
+    "enricher_prefix": "REL",
+    "commands": [
+      "changelog.md",
+      "release-analyze.md",
+      "release-notes.md",
+      "release-ready.md",
+      "release-tag.md",
+      "release-version.md",
+      "release.md"
+    ],
+    "has_baseline": true
+  },
+  {
+    "name": "sap-migration-companion",
+    "version": "1.0.0",
+    "kind": "runtime",
+    "category": "data",
+    "requires": [
+      "ai-baseline"
+    ],
+    "enricher_prefix": "SAPMIG",
+    "commands": [
+      "sap-extract-advise.md",
+      "sap-harmonize.md",
+      "sap-keymap.md",
+      "sap-load-advise.md",
+      "sap-map.md",
+      "sap-profile.md"
+    ],
+    "has_baseline": true
+  },
+  {
+    "name": "security-companion",
+    "version": "1.0.0",
+    "kind": "runtime",
+    "category": "security",
+    "requires": [
+      "ai-baseline"
+    ],
+    "enricher_prefix": "SEC",
+    "commands": [
+      "abuse-cases.md",
+      "attack-surface.md",
+      "scan-strategy.md",
+      "security-review.md",
+      "stride.md",
+      "threat-model.md"
+    ],
+    "has_baseline": true
+  },
+  {
+    "name": "self-evolution-companion",
+    "version": "1.0.0",
+    "kind": "runtime",
+    "category": "productivity",
+    "requires": [
+      "ai-baseline"
+    ],
+    "enricher_prefix": "EVO",
+    "commands": [
+      "evolution-report.md",
+      "refine.md",
+      "score-pending.md",
+      "score.md"
+    ],
+    "has_baseline": true
+  },
+  {
+    "name": "teaching-craft",
+    "version": "1.0.0",
+    "kind": "runtime",
+    "category": "development",
+    "requires": [
+      "ai-baseline"
+    ],
+    "enricher_prefix": "TEACH",
+    "commands": [],
+    "has_baseline": true
+  },
+  {
+    "name": "uiux-companion",
+    "version": "1.0.0",
+    "kind": "runtime",
+    "category": "development",
+    "requires": [
+      "ai-baseline"
+    ],
+    "enricher_prefix": "UX",
+    "commands": [
+      "design-advise.md",
+      "design-system-check.md",
+      "ux-review.md"
+    ],
+    "has_baseline": true
+  },
+  {
+    "name": "workshop-companion",
+    "version": "1.0.0",
+    "kind": "runtime",
+    "category": "development",
+    "requires": [
+      "ai-baseline"
+    ],
+    "enricher_prefix": "WSHOP",
+    "commands": [
+      "adapt.md",
+      "curriculum.md",
+      "dry-run.md",
+      "lab.md",
+      "lesson.md"
+    ],
+    "has_baseline": true
+  },
+  {
+    "name": "workspace-companion",
+    "version": "1.0.0",
+    "kind": "runtime",
+    "category": "development",
+    "requires": [
+      "ai-baseline"
+    ],
+    "enricher_prefix": "WS",
+    "commands": [
+      "cross-repo-plan.md",
+      "find.md",
+      "impact.md",
+      "workspace-init.md",
+      "workspace-map.md"
+    ],
+    "has_baseline": true
+  }
+]

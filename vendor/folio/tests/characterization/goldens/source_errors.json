@@ -1,0 +1,37 @@
+{
+  "hash_malformed": {
+    "code": null,
+    "message": "Invalid source hash.",
+    "status": 400
+  },
+  "hash_mismatch": {
+    "code": "SOURCE_CHANGED",
+    "message": "This source changed. Retrieve a current brief before reading it.",
+    "status": 409
+  },
+  "negative_offset": {
+    "code": null,
+    "message": "Use a source identifier, a non-negative offset and a budget of 1\u201340000 characters.",
+    "status": 400
+  },
+  "offset_beyond_end": {
+    "code": null,
+    "message": "Offset is beyond the end of this source.",
+    "status": 400
+  },
+  "source_not_string": {
+    "code": null,
+    "message": "Use a source identifier, a non-negative offset and a budget of 1\u201340000 characters.",
+    "status": 400
+  },
+  "unknown_source": {
+    "code": "NOT_FOUND",
+    "message": "Planning source not found in this project.",
+    "status": 404
+  },
+  "zero_budget": {
+    "code": null,
+    "message": "Use a source identifier, a non-negative offset and a budget of 1\u201340000 characters.",
+    "status": 400
+  }
+}

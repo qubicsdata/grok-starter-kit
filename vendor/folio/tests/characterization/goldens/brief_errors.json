@@ -1,0 +1,27 @@
+{
+  "budget_bool": {
+    "code": null,
+    "message": "Use a query of at most 1000 characters and a budget of 500\u201340000 characters.",
+    "status": 400
+  },
+  "budget_too_large": {
+    "code": null,
+    "message": "Use a query of at most 1000 characters and a budget of 500\u201340000 characters.",
+    "status": 400
+  },
+  "budget_too_small": {
+    "code": null,
+    "message": "Use a query of at most 1000 characters and a budget of 500\u201340000 characters.",
+    "status": 400
+  },
+  "query_not_string": {
+    "code": null,
+    "message": "Use a query of at most 1000 characters and a budget of 500\u201340000 characters.",
+    "status": 400
+  },
+  "query_too_long": {
+    "code": null,
+    "message": "Use a query of at most 1000 characters and a budget of 500\u201340000 characters.",
+    "status": 400
+  }
+}

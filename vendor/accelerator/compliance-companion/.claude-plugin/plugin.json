@@ -1,0 +1,21 @@
+{
+  "name": "compliance-companion",
+  "version": "1.0.0",
+  "description": "EU AI Act high-risk regime tooling \u2014 human oversight gates, right-to-explanation, incident reporting, and model cards.",
+  "category": "security",
+  "author": {
+    "name": "<your-name>",
+    "email": "you@example.com"
+  },
+  "keywords": [
+    "compliance",
+    "eu-ai-act",
+    "oversight",
+    "gdpr",
+    "model-card",
+    "incident"
+  ],
+  "requires": [
+    "ai-baseline"
+  ]
+}

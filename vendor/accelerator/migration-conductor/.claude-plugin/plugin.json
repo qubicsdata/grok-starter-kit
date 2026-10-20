@@ -1,0 +1,21 @@
+{
+  "name": "migration-conductor",
+  "version": "1.0.0",
+  "description": "Migration lifecycle verification for SAP to Databricks to SAP consolidation — wave planning, reconciliation suites, DQ gates, and cutover runbooks.",
+  "category": "data",
+  "author": {
+    "name": "<your-name>",
+    "email": "you@example.com"
+  },
+  "requires": [
+    "ai-baseline"
+  ],
+  "keywords": [
+    "sap",
+    "migration",
+    "reconciliation",
+    "wave-planning",
+    "cutover",
+    "databricks"
+  ]
+}

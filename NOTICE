@@ -1,0 +1,6 @@
+Starter kit
+Copyright QubicsData
+
+This product includes software developed as part of the components listed in VENDORED.md.
+Component notices are in vendor/*/NOTICE where present.
+Backlog.md is not included; it is installed from npm under its own MIT license (see EXTERNAL-DEPENDENCIES.md).

@@ -1,0 +1,22 @@
+{
+  "name": "teaching-craft",
+  "version": "1.0.0",
+  "description": "Workshop subject matter as skills — pedagogy decision rules, reproducible agentic failure-mode demos, agentic prompting patterns, an AI risk taxonomy with exercises, and an annotated prompt corpus. Consumed by workshop-companion agents when authoring sessions.",
+  "category": "development",
+  "author": {
+    "name": "<your-name>",
+    "email": "you@example.com"
+  },
+  "keywords": [
+    "teaching",
+    "workshop",
+    "pedagogy",
+    "prompting",
+    "responsible-ai",
+    "failure-modes",
+    "curriculum"
+  ],
+  "requires": [
+    "ai-baseline"
+  ]
+}

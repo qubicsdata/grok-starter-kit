@@ -1,0 +1,27 @@
+{
+  "name": "polyglot-companion",
+  "version": "1.0.0",
+  "description": "Language-specialist depth across 8 languages (Python, Java, Kotlin, Perl, SQL, Go, Rust, C#) \u2014 per-language idioms, security pitfalls, testing conventions, and code review with cited pack rules.",
+  "category": "development",
+  "author": {
+    "name": "<your-name>",
+    "email": "you@example.com"
+  },
+  "keywords": [
+    "polyglot",
+    "code-review",
+    "python",
+    "java",
+    "kotlin",
+    "perl",
+    "sql",
+    "go",
+    "rust",
+    "csharp",
+    "language-packs",
+    "security"
+  ],
+  "requires": [
+    "ai-baseline"
+  ]
+}

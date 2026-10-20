@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools==80.9.0", "wheel==0.45.1"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "folio-workspace"
+dynamic = ["version"]
+description = "A local, project-folder-backed planning workspace"
+readme = "README.md"
+requires-python = ">=3.9"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+classifiers = ["Programming Language :: Python :: 3", "Operating System :: MacOS", "Operating System :: POSIX :: Linux"]
+
+[project.scripts]
+folio = "folio.cli:main"
+folio-server = "folio.web:main"
+
+[project.entry-points."folio.plugins"]
+ollama = "folio_ollama:make"
+
+[tool.setuptools.dynamic]
+version = {attr = "folio.__version__"}
+
+[tool.setuptools.packages.find]
+include = ["folio", "folio.*", "folio_ollama"]
+
+[tool.setuptools.package-data]
+folio = ["static/*"]

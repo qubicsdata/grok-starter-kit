@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0.0",
+  "project": "acme-shop",
+  "one_liner": "Usage-based billing for small SaaS teams",
+  "stage": "building",
+  "stage_history": [
+    {"stage": "idea", "ts": "2026-07-01T09:00:00Z", "by": "/product-init", "evidence": "empty repo; passport created"},
+    {"stage": "building", "ts": "2026-07-02T10:00:00Z", "by": "/build-next", "evidence": "user-declared start at building"}
+  ],
+  "backlog_root": "docs/product",
+  "backlog_scheme": "wsjf-lite",
+  "counters": {"epic": 1, "feature": 0, "story": 1, "persona": 1},
+  "ready_count": 1,
+  "last_built": null,
+  "release_nudge": {"last_tag": null, "suggested": false},
+  "created": "2026-07-01",
+  "updated": "2026-07-02"
+}

@@ -1,0 +1,12 @@
+{
+  "name": "clean-plugin",
+  "version": "1.0.0",
+  "description": "Minimal conformant plugin fixture for calibration testing.",
+  "category": "productivity",
+  "author": {
+    "name": "Test Author",
+    "email": "test@example.com"
+  },
+  "keywords": ["test", "calibration"],
+  "requires": ["ai-baseline"]
+}

@@ -1,0 +1,25 @@
+{
+  "name": "product-companion",
+  "version": "1.0.0",
+  "schema_version": "1",
+  "description": "Product planning layer — personas, epics, features, user stories, a prioritized WSJF-lite backlog, and a project passport that tracks lifecycle stage. /build-next drives the top ready story through the accelerate arc: spec → enrich → plan → execute → review.",
+  "category": "productivity",
+  "author": {
+    "name": "<your-name>",
+    "email": "you@example.com"
+  },
+  "readme": "README.md",
+  "requires": [
+    "ai-baseline"
+  ],
+  "keywords": [
+    "product",
+    "backlog",
+    "epic",
+    "user-story",
+    "persona",
+    "passport",
+    "wsjf",
+    "lifecycle"
+  ]
+}

@@ -1,0 +1,4 @@
+{"schema_version":"1.0.0","session_id":"s1","plugin":"dev-companion","agent":"code-reviewer","command":"hook:subagent-stop","model":"claude-opus-4-8","tokens_in":1000,"tokens_out":200}
+{"schema_version":"1.0.0","session_id":"s1","plugin":"dev-companion","agent":"security-reviewer","command":"hook:subagent-stop","model":"claude-sonnet-4-6","tokens_in":500,"tokens_out":100}
+{"schema_version":"1.0.0","session_id":"s2","plugin":"api-designer","agent":"intent-agent","command":"hook:subagent-stop","model":"claude-haiku-4-5-20251001","tokens_in":400,"tokens_out":0}
+{"schema_version":"1.0.0","session_id":"s2","plugin":null,"agent":"hook","command":"hook:stop","model":null,"tokens_in":null,"tokens_out":null}

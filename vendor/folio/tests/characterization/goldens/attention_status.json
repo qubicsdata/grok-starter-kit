@@ -1,0 +1,135 @@
+{
+  "default": {
+    "attention_items": [
+      {
+        "blocker": "Waiting on example.com DNS",
+        "client": "Example Client",
+        "due_date": "",
+        "project": "Example rollout",
+        "reason": "blocked",
+        "task_id": "0000000000000001",
+        "title": "Wait for DNS delegation"
+      },
+      {
+        "blocker": "",
+        "client": "Example Client",
+        "due_date": "2026-10-01",
+        "project": "Example rollout",
+        "reason": "overdue",
+        "task_id": "0000000000000002",
+        "title": "Migrate routing ledger"
+      },
+      {
+        "blocker": "Vendor contract",
+        "client": "Example Client",
+        "due_date": "2026-12-31",
+        "project": "Example rollout",
+        "reason": "blocked",
+        "task_id": "0000000000000007",
+        "title": "Blocked with a future date"
+      },
+      {
+        "blocker": "",
+        "client": "Example Client",
+        "due_date": "2026-10-16",
+        "project": "Example rollout",
+        "reason": "overdue",
+        "task_id": "0000000000000008",
+        "title": "Overdue in the backlog"
+      }
+    ],
+    "clients": [
+      {
+        "attention": 4,
+        "blocked": 2,
+        "client": "Example Client",
+        "done": 1,
+        "open": 7,
+        "overdue": 2,
+        "projects": 1,
+        "tasks": 8
+      }
+    ],
+    "storage_errors": 0,
+    "totals": {
+      "attention": 4,
+      "blocked": 2,
+      "done": 1,
+      "open": 7,
+      "overdue": 2,
+      "projects": 1,
+      "tasks": 8
+    }
+  },
+  "with_archived": {
+    "attention_items": [
+      {
+        "blocker": "Waiting on example.com DNS",
+        "client": "Example Client",
+        "due_date": "",
+        "project": "Example rollout",
+        "reason": "blocked",
+        "task_id": "0000000000000001",
+        "title": "Wait for DNS delegation"
+      },
+      {
+        "blocker": "",
+        "client": "Example Client",
+        "due_date": "2026-10-01",
+        "project": "Example rollout",
+        "reason": "overdue",
+        "task_id": "0000000000000002",
+        "title": "Migrate routing ledger"
+      },
+      {
+        "blocker": "Vendor contract",
+        "client": "Example Client",
+        "due_date": "2026-12-31",
+        "project": "Example rollout",
+        "reason": "blocked",
+        "task_id": "0000000000000007",
+        "title": "Blocked with a future date"
+      },
+      {
+        "blocker": "",
+        "client": "Example Client",
+        "due_date": "2026-10-16",
+        "project": "Example rollout",
+        "reason": "overdue",
+        "task_id": "0000000000000008",
+        "title": "Overdue in the backlog"
+      },
+      {
+        "blocker": "",
+        "client": "Example Client",
+        "due_date": "",
+        "project": "Archived pilot",
+        "reason": "blocked",
+        "task_id": "0000000000000009",
+        "title": "Archived blocked task"
+      }
+    ],
+    "clients": [
+      {
+        "attention": 5,
+        "blocked": 3,
+        "client": "Example Client",
+        "done": 1,
+        "open": 8,
+        "overdue": 2,
+        "projects": 2,
+        "tasks": 9
+      }
+    ],
+    "storage_errors": 0,
+    "totals": {
+      "attention": 5,
+      "blocked": 3,
+      "done": 1,
+      "open": 8,
+      "overdue": 2,
+      "projects": 2,
+      "tasks": 9
+    }
+  }
+}

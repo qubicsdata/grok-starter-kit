@@ -1,0 +1,366 @@
+{
+  "_comment": "Runner config template. Copy to ${KIT_HOME}/runner/router.json. Every path lives under ${KIT_HOME}. The runner is OFF until you set runner.enabled to true and confirm.",
+  "runner": {
+    "enabled": false,
+    "pidfile": "${KIT_HOME}/runner/logs/queue-runner.pid",
+    "stop_file": "${KIT_HOME}/runner/logs/queue-runner.stop",
+    "out": "${KIT_HOME}/runner/logs/queue-runner.out",
+    "script": "${KIT_HOME}/runner/bin/run-claude.sh",
+    "env_file": "",
+    "flags_file": "${KIT_HOME}/runner/claude-run-flags.sh",
+    "bash_env_file": "${KIT_HOME}/runner/claude-bash-env.sh",
+    "prompts_dir": "${KIT_HOME}/runner/prompts",
+    "commit_identity": "<your-name> <you@example.com>",
+    "mcp_cleanup_pattern": "",
+    "refuse_api_key": true
+  },
+  "paths": {
+    "logs": "${KIT_HOME}/runner/logs",
+    "queue": "${KIT_HOME}/runner/queue",
+    "runner": "${KIT_HOME}/runner/bin/run-claude.sh"
+  },
+  "policy": {
+    "total_cap": 4,
+    "opus_cap": 3,
+    "session": {
+      "pause_noncritical_pct": 80,
+      "stop_new_pct": 90
+    },
+    "weekly": {
+      "restricted_pct": 68,
+      "restricted_cap": 3,
+      "restricted_noncritical_after_reset_minutes": 60,
+      "critical_only_pct": 75,
+      "critical_only_cap": 1,
+      "stop_new_pct": 80
+    },
+    "heavy_after_reset_minutes": 60,
+    "early_block_fraction": 0.4,
+    "resume_grace_seconds": 60,
+    "rate_limit_park_statuses": [
+      "rejected"
+    ],
+    "overage": "disabled",
+    "count_external_claude": true,
+    "external_default_family": "opus"
+  },
+  "usage": {
+    "primary_source": "rate_limit_event",
+    "probe_method": "print",
+    "probe_fallback": "none",
+    "poll_interval_minutes": 30,
+    "min_probe_spacing_minutes": 30,
+    "near_park_min_probe_spacing_minutes": 5,
+    "stale_minutes": 20,
+    "window_hours": 5,
+    "weekly_days": 7,
+    "projects_dir": "~/.claude/projects",
+    "probe_dir": "${KIT_HOME}/runner/usage-probe",
+    "probe_unset_env": [],
+    "budgets_estimate": {
+      "five_hour_weighted": 60000000,
+      "weekly_weighted": 600000000
+    },
+    "token_weights": {
+      "input": 1.0,
+      "output": 5.0,
+      "cache_read": 0.1,
+      "cache_creation": 1.25
+    },
+    "model_weights": {
+      "opus": 1.0,
+      "sonnet": 0.6,
+      "haiku": 0.2,
+      "other": 1.0
+    }
+  },
+  "backlog": {
+    "enabled": false,
+    "queue": "${KIT_HOME}/runner/backlog/queue.yaml",
+    "state_file": "${KIT_HOME}/runner/backlog/queue-state.json",
+    "prompt_dir": "${KIT_HOME}/runner/backlog/prompts",
+    "priorities": [
+      "P0",
+      "P1",
+      "P2"
+    ],
+    "max_concurrent": 3,
+    "reserve_slots": 1,
+    "reserve_opus": 1,
+    "max_attempts": 2,
+    "fable": {
+      "max_concurrent": 2
+    },
+    "quiet_hours": {
+      "enabled": true,
+      "start": "01:00",
+      "end": "07:00",
+      "tz": "${KIT_TZ}"
+    },
+    "session_max_pct": 80,
+    "weekly_max_pct": 75,
+    "require_soak_window": false,
+    "soak_reset_within_hours": 24,
+    "soak_projected_max_pct": 75,
+    "burn_lookback_hours": 3,
+    "group_limits": {},
+    "guard_preamble": "BACKLOG JOB (local only): never git push, never open, edit or comment on PRs or issues. Stop at local files, a local branch or a PR-body draft file. Approval for anything external comes from <your-name>.",
+    "weekly_pacing": {
+      "all_models": {
+        "enabled": true,
+        "target_pct": 70,
+        "target_hours_before_reset": 18,
+        "final_pct": 75,
+        "slack_pct": 2,
+        "near_cap": 2
+      },
+      "fable": {
+        "enabled": true,
+        "target_pct": 75,
+        "target_hours_before_reset": 0,
+        "final_pct": 75,
+        "slack_pct": 2,
+        "near_cap": 1,
+        "park_pct": 80,
+        "near_park_pct": 75,
+        "fresh_minutes": 30,
+        "stale_near_cap_minutes": 45,
+        "stale_block_minutes": 90
+      }
+    }
+  },
+  "_comment_routes": "Routing: a task type picks the model, effort and profile of a run (see DESIGN.md). Opus for security, architecture and core work; Sonnet for routine edits and docs; Haiku only if you opt in (--allow-haiku). The fable-* routes are optional: use them only if your plan includes Fable. Edit the table freely; the runner reads it on every launch.",
+  "models": {
+    "opus": {
+      "fallback": "sonnet",
+      "family": "opus"
+    },
+    "opusplan": {
+      "fallback": "sonnet",
+      "family": "opus"
+    },
+    "sonnet": {
+      "fallback": "opus",
+      "family": "sonnet"
+    },
+    "haiku": {
+      "fallback": "sonnet",
+      "family": "haiku"
+    },
+    "fable": {
+      "fallback": "opus",
+      "family": "fable"
+    }
+  },
+  "default_model": "opus",
+  "routes": {
+    "security": {
+      "model": "opus",
+      "reason": "security work -> Opus",
+      "profile": "lean",
+      "effort": "high"
+    },
+    "implement": {
+      "model": "opus",
+      "reason": "core implementation -> Opus",
+      "profile": "lean",
+      "effort": "high"
+    },
+    "review-fix": {
+      "model": "opus",
+      "reason": "review fixes in core logic -> Opus",
+      "profile": "lean",
+      "effort": "high"
+    },
+    "hard-debug": {
+      "model": "opus",
+      "reason": "hard debugging -> Opus",
+      "profile": "lean",
+      "effort": "high"
+    },
+    "architecture": {
+      "model": "opus",
+      "reason": "architecture -> Opus",
+      "profile": "lean_no_superpowers",
+      "effort": "high"
+    },
+    "plan": {
+      "model": "opus",
+      "reason": "planning -> Opus",
+      "profile": "lean_no_superpowers",
+      "effort": "high"
+    },
+    "test": {
+      "model": "opus",
+      "reason": "writing tests -> Opus",
+      "profile": "lean_no_superpowers",
+      "effort": "high"
+    },
+    "test-hardening": {
+      "model": "opus",
+      "reason": "test hardening -> Opus",
+      "profile": "lean_no_superpowers",
+      "effort": "high"
+    },
+    "pre-review": {
+      "model": "opus",
+      "reason": "fresh-context review before you look -> Opus",
+      "profile": "lean_no_superpowers_keep_review",
+      "effort": "high"
+    },
+    "review": {
+      "model": "opus",
+      "reason": "code review -> Opus",
+      "profile": "lean_no_superpowers_keep_review",
+      "effort": "high"
+    },
+    "default": {
+      "model": "opus",
+      "reason": "default route",
+      "profile": "lean_no_superpowers"
+    },
+    "medium": {
+      "model": "opusplan",
+      "reason": "medium task -> opusplan (runs as Sonnet when headless)",
+      "profile": "lean_no_superpowers",
+      "effort": "medium"
+    },
+    "refactor": {
+      "model": "sonnet",
+      "reason": "routine refactor -> Sonnet",
+      "profile": "lean_no_superpowers",
+      "effort": "medium"
+    },
+    "test-hardening-nonsecurity": {
+      "model": "sonnet",
+      "reason": "test hardening outside security code -> Sonnet",
+      "profile": "lean_no_superpowers",
+      "effort": "medium"
+    },
+    "rebase": {
+      "model": "sonnet",
+      "reason": "routine edit (rebase) -> Sonnet",
+      "profile": "lean_no_superpowers",
+      "effort": "medium"
+    },
+    "rebase-fallout": {
+      "model": "sonnet",
+      "reason": "rebase fallout -> Sonnet; use Opus if security code is touched",
+      "profile": "lean_no_superpowers",
+      "effort": "medium"
+    },
+    "rename": {
+      "model": "sonnet",
+      "reason": "routine edit (rename) -> Sonnet",
+      "profile": "lean_no_superpowers",
+      "effort": "medium"
+    },
+    "pr-body": {
+      "model": "sonnet",
+      "reason": "PR description draft -> Sonnet",
+      "profile": "lean_no_superpowers",
+      "effort": "medium"
+    },
+    "mechanical": {
+      "model": "sonnet",
+      "reason": "routine mechanical edit -> Sonnet",
+      "profile": "lean_no_superpowers",
+      "effort": "medium"
+    },
+    "docs": {
+      "model": "sonnet",
+      "reason": "docs -> Sonnet",
+      "profile": "lean_no_superpowers",
+      "effort": "medium"
+    },
+    "format": {
+      "model": "sonnet",
+      "reason": "trivial (format) -> Sonnet; Haiku only when opted in",
+      "profile": "lean_no_superpowers",
+      "effort": "low",
+      "haiku_opt_in": true
+    },
+    "log-triage": {
+      "model": "sonnet",
+      "reason": "trivial (log triage) -> Sonnet; Haiku only when opted in",
+      "profile": "lean_no_superpowers",
+      "effort": "low",
+      "haiku_opt_in": true
+    },
+    "log-summary": {
+      "model": "sonnet",
+      "reason": "trivial (log summary) -> Sonnet; Haiku only when opted in",
+      "profile": "lean_no_superpowers",
+      "effort": "low",
+      "haiku_opt_in": true
+    },
+    "fable-pre-review": {
+      "model": "fable",
+      "reason": "optional: in-depth review, report only -> Fable",
+      "profile": "lean_no_superpowers_keep_review",
+      "effort": "high"
+    },
+    "fable-implement": {
+      "model": "fable",
+      "reason": "optional: hard, design-heavy implementation -> Fable",
+      "profile": "lean",
+      "effort": "high"
+    },
+    "fable-security": {
+      "model": "fable",
+      "reason": "optional: security-sensitive code -> Fable",
+      "profile": "lean",
+      "effort": "high"
+    },
+    "fable-refactor": {
+      "model": "fable",
+      "reason": "optional: tricky refactor -> Fable",
+      "profile": "lean_no_superpowers",
+      "effort": "high"
+    }
+  },
+  "haiku_opt_in_default": false,
+  "subagent_model": {
+    "default": null
+  },
+  "task_type_aliases": {
+    "analysis/docs": "docs",
+    "feature+tests": "implement",
+    "test-infra": "test-hardening-nonsecurity",
+    "metrics": "log-summary"
+  },
+  "_comment_profiles": "Per-run settings for routed runs only (claude --settings). lean: two heavy public plugins off, short skill listing, no MCP servers. lean_no_superpowers: also the TDD skill plugin and the review toolkit off. lean_no_superpowers_keep_review: TDD skill off, review toolkit kept. Turning off a plugin you do not have is harmless. Only a few settings keys are allowed (crlib/route.py).",
+  "profiles": {
+    "lean": {
+      "settings": {
+        "enabledPlugins": {
+          "frontend-design@claude-plugins-official": false,
+          "playwright@claude-plugins-official": false
+        },
+        "skillListingMaxDescChars": 80
+      },
+      "extra_flags": [
+        "--strict-mcp-config"
+      ]
+    },
+    "lean_no_superpowers": {
+      "inherits": "lean",
+      "settings": {
+        "enabledPlugins": {
+          "superpowers@claude-plugins-official": false,
+          "pr-review-toolkit@claude-plugins-official": false
+        }
+      }
+    },
+    "lean_no_superpowers_keep_review": {
+      "inherits": "lean",
+      "settings": {
+        "enabledPlugins": {
+          "superpowers@claude-plugins-official": false
+        }
+      }
+    }
+  },
+  "profiles_enabled": true,
+  "experiments": {}
+}

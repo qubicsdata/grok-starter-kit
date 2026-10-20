@@ -1,0 +1,26 @@
+Synthetic `claude -p /usage` output for Example Org (example-plan)
+
+Current session: 5% used · resets Oct 15, 10:50pm (Etc/GMT-3)
+Current week (all models): 30% used · resets Oct 16, 6pm (Etc/GMT-3)
+Current week (Fable): 0% used · resets Oct 16, 6pm (Etc/GMT-3)
+
+What's contributing to your limits usage?
+Synthetic breakdown — example-project sessions account for most example usage in this made-up window.
+
+Last 24h · synthetic totals
+  example-project/session-a
+  example-project/session-b · placeholder
+  example-subagent · placeholder row for layout
+  Tokens: 0 input · 0 output · 0 cache read (synthetic)
+  Models: example-model 100% (synthetic)
+  Cost: $0.00 (synthetic)
+  Share: 0% (synthetic)
+
+Last 7d · synthetic totals
+  example-project/session-a
+  example-project/session-b · placeholder
+  example-subagent · placeholder row for layout
+  Tokens: 0 input · 0 output · 0 cache read (synthetic)
+  Models: example-model 100% (synthetic)
+  Cost: $0.00 (synthetic)
+  Share: 0% (synthetic)

@@ -1,0 +1,6 @@
+github.com/gin-gonic/gin v1.9.1 h1:4idEAncQnU5cB7BeOkPtxjfCSye0AAm1R0RVIqJ+Jmg=
+github.com/gin-gonic/gin v1.9.1/go.mod h1:hPLL8MWd2BLoDwwwd/8/UIEt0d/0nFnChGVn+3cFU4Y=
+github.com/go-gorm/gorm v1.25.0 h1:example=
+github.com/go-gorm/gorm v1.25.0/go.mod h1:example=
+golang.org/x/crypto v0.10.0 h1:example=
+golang.org/x/crypto v0.10.0/go.mod h1:example=

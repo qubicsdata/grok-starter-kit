@@ -1,0 +1,50 @@
+  Claude Code v0.0.0-example · example-model · Example Plan · /home/user/example-project
+  ~/example-project (example)
+▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔ ◐ Status · Config · Usage · Stats
+   Settings:  Status   Config   Usage (tab)
+
+   Overview
+
+   Version: 0.0.0-example
+   Session ID: 00000000-0000
+   Model: example-model
+   cwd: /home/user/example-project/example-subdir
+   Organization: Example Org (example-org-0000) · synthetic
+
+
+   Example usage notice heading
+   This synthetic paragraph stands in for the long notice text that the real screen shows here; it carries no account data.
+
+   Example line one · synthetic value one example
+   Example line two · synthetic value two example
+
+   Plan limits shown below are synthetic
+
+   Current session
+   █████████████                                      26% used
+   Resets 5:49pm (Etc/GMT-3)
+
+   Current week (all models)
+   ██████████████▍                                    29% used
+   Resets Oct 16, 5:59pm (Etc/GMT-3)
+
+   Current week (Fable)
+                                                      0% used
+   Resets Oct 16, 6pm (Etc/GMT-3)
+
+   What's contributing to your limits usage?
+   Synthetic breakdown — example-project sessions account for most example usage
+
+   Last 24h · synthetic totals · example-model 100% · no real numbers
+
+   Example contributor A (synthetic)
+    example-project/session-a · 0 tokens · placeholder row for layout
+    example-project/session-b
+
+   Example contributor B (synthetic) · subagents
+    example-subagent — placeholder row for layout testing
+    example-subagent-two · 0 tokens · synthetic
+
+   Example contributor C (synthetic) · tools and MCP
+    example-tool · 0 tokens · synthetic row for layout
+    Scroll for more ↓ synthetic padding synthetic padding synthetic padding synthetic padding synthetic padding synthetic padding synthetic padding synthetic padding synthetic padding synthetic padding 

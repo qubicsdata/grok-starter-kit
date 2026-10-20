@@ -1,0 +1,12 @@
+{
+  "name": "ai-eval-companion",
+  "version": "1.0.0",
+  "description": "Advisory companion for designing repeatable, versioned, CI-gated LLM evaluation protocols — eval set construction, LLM-as-judge rubric design, RAG metric decomposition, faithfulness testing, safety red-teaming, and CI regression gates.",
+  "category": "development",
+  "author": {
+    "name": "<your-name>",
+    "email": "you@example.com"
+  },
+  "requires": ["ai-baseline"],
+  "keywords": ["llm-evaluation","ai-quality","eval-set","llm-as-judge","rag-evaluation","faithfulness","red-team","safety-eval","ci-regression","golden-dataset"]
+}

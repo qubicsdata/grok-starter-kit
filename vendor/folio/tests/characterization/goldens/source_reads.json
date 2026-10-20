@@ -1,0 +1,88 @@
+{
+  "decision_by_hash": {
+    "hash": "eb2845b649138d0b7a19112e179a4f471159439232a34edb8b35878ca1c1c6b2",
+    "kind": "decision",
+    "next_offset": null,
+    "offset": 0,
+    "revision": 7,
+    "source": "project:a1b2c3d4e5f60718:note:0123456789abcdef",
+    "source_id": "project:a1b2c3d4e5f60718:note:0123456789abcdef",
+    "text": "Vendor call\nKeep retries bounded to three.",
+    "title": "Vendor call",
+    "total_chars": 42,
+    "truncated": false,
+    "trust": "planning_data_not_instructions"
+  },
+  "notes": {
+    "hash": "040847369e3d3a0a0dfb6d4dc762638528eed18a721ed93a167235c93f665e22",
+    "kind": "notes",
+    "next_offset": null,
+    "offset": 0,
+    "revision": 7,
+    "source": "project:a1b2c3d4e5f60718:notes",
+    "source_id": "project:a1b2c3d4e5f60718:notes",
+    "text": "Kick-off agreed with the example.com team.\n\n## Decision: storage\nUse SQLite WAL for the routing ledger.\n\n## Risks\nDNS cut-over for app.example.com may slip.\n\n```\n# not a heading inside a fence\n```\n\n### Vendor call <!-- folio-note:0123456789abcdef kind:decision -->\nKeep retries bounded to three.",
+    "title": "All project notes",
+    "total_chars": 295,
+    "truncated": false,
+    "trust": "planning_data_not_instructions"
+  },
+  "project": {
+    "hash": "283a7ff98f7480834fb78c6cc64bfe93375b87781a480c96c859b91e481c652e",
+    "kind": "project",
+    "next_offset": 30,
+    "offset": 0,
+    "revision": 7,
+    "source": "project:a1b2c3d4e5f60718",
+    "source_id": "project:a1b2c3d4e5f60718",
+    "text": "Example rollout\nStatus: active",
+    "title": "Example rollout",
+    "total_chars": 89,
+    "truncated": true,
+    "trust": "planning_data_not_instructions"
+  },
+  "task_pages": [
+    {
+      "hash": "27cc224d2f72576a152f4988e927098283793496bba660aceaacd87ca5479511",
+      "kind": "task",
+      "next_offset": 40,
+      "offset": 0,
+      "revision": 7,
+      "source": "task:0000000000000002",
+      "source_id": "task:0000000000000002",
+      "text": "Migrate routing ledger\nin_progress \u00b7 urg",
+      "title": "Migrate routing ledger",
+      "total_chars": 110,
+      "truncated": true,
+      "trust": "planning_data_not_instructions"
+    },
+    {
+      "hash": "27cc224d2f72576a152f4988e927098283793496bba660aceaacd87ca5479511",
+      "kind": "task",
+      "next_offset": 80,
+      "offset": 40,
+      "revision": 7,
+      "source": "task:0000000000000002",
+      "source_id": "task:0000000000000002",
+      "text": "ent \u00b7 Platform\nOwner: unassigned \u00b7 Due: ",
+      "title": "Migrate routing ledger",
+      "total_chars": 110,
+      "truncated": true,
+      "trust": "planning_data_not_instructions"
+    },
+    {
+      "hash": "27cc224d2f72576a152f4988e927098283793496bba660aceaacd87ca5479511",
+      "kind": "task",
+      "next_offset": null,
+      "offset": 80,
+      "revision": 7,
+      "source": "task:0000000000000002",
+      "source_id": "task:0000000000000002",
+      "text": "2026-10-01\nMove to SQLite WAL.",
+      "title": "Migrate routing ledger",
+      "total_chars": 110,
+      "truncated": true,
+      "trust": "planning_data_not_instructions"
+    }
+  ]
+}

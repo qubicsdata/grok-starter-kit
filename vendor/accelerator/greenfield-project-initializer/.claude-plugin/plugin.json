@@ -1,0 +1,21 @@
+{
+  "name": "greenfield-project-initializer",
+  "version": "1.0.0",
+  "description": "Technology-agnostic, question-driven plugin that guides developers through every greenfield project phase — from requirements to working scaffold — producing durable artifacts with no unanswered assumptions.",
+  "category": "development",
+  "author": {
+    "name": "<your-name>",
+    "email": "you@example.com"
+  },
+  "requires": [
+    "ai-baseline"
+  ],
+  "keywords": [
+    "greenfield",
+    "scaffold",
+    "requirements",
+    "architecture",
+    "adr",
+    "ci"
+  ]
+}

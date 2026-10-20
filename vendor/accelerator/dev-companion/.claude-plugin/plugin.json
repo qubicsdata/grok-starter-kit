@@ -1,0 +1,24 @@
+{
+  "name": "dev-companion",
+  "version": "1.0.0",
+  "schema_version": "1",
+  "description": "Ongoing project companion — code review, security review, tech debt analysis, test generation, feature spec, design, ADR capture, and adversarial critique. Eight independent agents, no session setup required.",
+  "category": "development",
+  "author": {
+    "name": "<your-name>",
+    "email": "you@example.com"
+  },
+  "readme": "README.md",
+  "requires": [
+    "ai-baseline"
+  ],
+  "keywords": [
+    "code-review",
+    "security",
+    "tech-debt",
+    "testing",
+    "spec",
+    "design",
+    "adr"
+  ]
+}

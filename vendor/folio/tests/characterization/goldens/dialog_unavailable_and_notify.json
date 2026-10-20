@@ -1,0 +1,22 @@
+{
+  "notify": [
+    {
+      "argv": [
+        "/usr/bin/notify-send",
+        "Folio",
+        "Example rollout: codex:worker-1 wants to run pytest -q"
+      ],
+      "env": {
+        "DISPLAY": ":0",
+        "HOME": "/nonexistent/fixture-home",
+        "LANG": "C.UTF-8",
+        "PATH": "/usr/bin:/bin"
+      }
+    }
+  ],
+  "unavailable": {
+    "linux_no_display": "A person must confirm this at the computer, but no confirmation dialog can open here. Decide it in the tool that asked for it.",
+    "linux_no_zenity": "Folio needs Zenity (/usr/bin/zenity or /bin/zenity) for confirmation dialogs on Linux. A person must confirm this at the computer, but no confirmation dialog can open here. Decide it in the tool that asked for it.",
+    "unsupported": "A person must confirm this at the computer, but no confirmation dialog can open here. Decide it in the tool that asked for it."
+  }
+}

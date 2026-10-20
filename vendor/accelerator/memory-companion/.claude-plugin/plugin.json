@@ -1,0 +1,19 @@
+{
+  "name": "memory-companion",
+  "version": "1.0.0",
+  "description": "Cross-session, cross-plugin persistent memory backed by a file-based key-value store at .ai-memory/.",
+  "category": "productivity",
+  "author": {
+    "name": "<your-name>",
+    "email": "you@example.com"
+  },
+  "keywords": [
+    "memory",
+    "persistence",
+    "cross-session",
+    "context"
+  ],
+  "requires": [
+    "ai-baseline"
+  ]
+}

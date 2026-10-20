@@ -1,0 +1,95 @@
+{
+  "approve_remember_cli": {
+    "result": {
+      "decision_id": "<decision_id>",
+      "kind": "permission",
+      "remembered": true,
+      "result": "approved"
+    },
+    "sent": [
+      {
+        "answer": "Tests only\n\nConfirmed by a person in Folio (via cli:codex).",
+        "decision_id": "<decision_id>",
+        "remember": true,
+        "resolution": "approve"
+      }
+    ]
+  },
+  "bad_request": {
+    "result": {
+      "code": null,
+      "error": "Choose approve, deny, or answer.",
+      "status": 400
+    },
+    "sent": []
+  },
+  "cancel_sends_nothing": {
+    "result": {
+      "code": "HUMAN_CONFIRMATION_CANCELLED",
+      "error": "The confirmation was cancelled or timed out. Nothing was sent to Switchboard.",
+      "status": 409
+    },
+    "sent": []
+  },
+  "clicked_deny_wins_ui": {
+    "result": {
+      "decision_id": "<decision_id>",
+      "kind": "permission",
+      "remembered": false,
+      "result": "denied"
+    },
+    "sent": [
+      {
+        "answer": "Confirmed by a person in Folio (via ui).",
+        "decision_id": "<decision_id>",
+        "resolution": "deny"
+      }
+    ]
+  },
+  "dialog_busy": {
+    "result": {
+      "code": "CONFIRMATION_IN_PROGRESS",
+      "error": "busy",
+      "status": 409
+    },
+    "sent": []
+  },
+  "dialog_unavailable": {
+    "result": {
+      "code": "HUMAN_CONFIRMATION_UNAVAILABLE",
+      "error": "A person must confirm this at the computer, but no confirmation dialog can open here. Decide it in the tool that asked for it.",
+      "status": 503
+    },
+    "sent": []
+  },
+  "no_longer_pending": {
+    "result": {
+      "decision_id": "<decision_id>",
+      "result": "no_longer_pending"
+    },
+    "sent": []
+  },
+  "question_answer": {
+    "result": {
+      "decision_id": "<decision_id>",
+      "kind": "question",
+      "remembered": false,
+      "result": "approved"
+    },
+    "sent": [
+      {
+        "answer": "eu-west-1",
+        "decision_id": "<decision_id>",
+        "resolution": "approve"
+      }
+    ]
+  },
+  "question_needs_text": {
+    "result": {
+      "code": "ANSWER_REQUIRED",
+      "error": "Type an answer to answer the question.",
+      "status": 400
+    },
+    "sent": []
+  }
+}

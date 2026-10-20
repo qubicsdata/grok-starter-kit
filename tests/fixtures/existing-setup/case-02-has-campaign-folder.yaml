@@ -1,0 +1,8 @@
+synthetic: true
+files:
+  - my-marketing/campaigns/example-spring-open-day.md
+  - my-marketing/posts/example-teaser.md
+expect:
+  copies: 0
+  link_notes: [dance-school/marketing/campaigns/example-spring-open-day.link.md]
+  unchanged: [my-marketing/]

@@ -1,0 +1,22 @@
+{
+  "name": "legacy-modernizer",
+  "version": "1.0.0",
+  "description": "Analyzes an existing codebase and produces a phased migration roadmap: dependency modernization, framework upgrades, pattern replacement, and technical debt sequencing — with every phase leaving the project in a buildable state.",
+  "category": "development",
+  "author": {
+    "name": "<your-name>",
+    "email": "you@example.com"
+  },
+  "readme": "README.md",
+  "requires": [
+    "ai-baseline"
+  ],
+  "keywords": [
+    "legacy",
+    "modernization",
+    "migration",
+    "upgrade",
+    "tech-debt",
+    "roadmap"
+  ]
+}

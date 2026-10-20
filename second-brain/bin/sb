@@ -1,0 +1,1597 @@
+#!/usr/bin/env python3
+"""sb: fast, channel-aware search over your second brain (read-only).
+
+Usage:
+    sb <query...> [--channel <one of second_brain.channels>] [--limit N]
+                  [--raw] [--engine auto|rg|python] [--config PATH]
+    sb --doctor [--config PATH]
+    sb --init-key
+    sb --hash-name < words.txt
+    sb --help
+
+The usage text names the configured channels, e.g.
+`--channel dance-school|other-activities`, generated from the config.
+
+Config: the `second_brain:` block of kit.config.yaml, read with a stdlib
+subset parser (no PyYAML). The file is the first of: --config PATH,
+$KIT_CONFIG, $KIT_HOME/kit.config.yaml, $HOME/grok-kit/kit.config.yaml. An
+explicit --config or $KIT_CONFIG that does not exist is an error; otherwise
+no file means built-in defaults, equal to kit.config.example.yaml. A key
+left empty (`key:` with nothing below it) takes its default.
+    home            SB_HOME; $SB_HOME wins over it. `${VAR}` is expanded from
+                    the environment (`${KIT_HOME}` falls back to kit.home), a
+                    leading `~` is $HOME, a relative path is relative to the
+                    config file's folder; an unset variable is an error.
+    router_file     relative to home (default ROUTER.md)
+    channels        the channel names (default dance-school, other-activities);
+                    non-empty, unique, no whitespace or any of , + | / [ ] " '
+    roots           folders searched, relative to home (default ["."]);
+                    missing ones are skipped
+    raw_roots       searched only with --raw (default [])
+    path_defaults   folder prefix -> channel, used when a note names no
+                    channel (default "<channel>/" -> channel for every
+                    configured channel); the longest matching prefix wins;
+                    every value must be a configured channel
+    name_hashes     first 16 hex chars of HMAC-SHA256(scan key, folded
+                    word) -> channel; extra channel detection, default {}
+                    (empty); entries need the scan key (below)
+    boost_paths     path prefixes whose files get a fixed score bonus
+                    (default [])
+    doctor          fail_on_untagged (check 2), fail_on_multiple_channels (3),
+                    fail_on_folder_mismatch (4), fail_on_cross_channel_link
+                    (5), fail_on_missing_router_path (1); all true by default;
+                    false turns that check's FAIL line into a WARN line
+Parser subset: block mappings by space indentation, `- item` block lists of
+scalars, one-line flow lists `[a, "b"]` and flow mappings `{}` /
+`{"k": "v"}`, double- and single-quoted or plain scalars, true/false, integers,
+`#` comments outside quotes. Tabs in indentation, unterminated quotes, bad
+indentation, block scalars (`|`, `>`), anchors and wrong value types are
+config errors (exit 2, one generic line on stderr).
+
+Channel of a note (first 30 lines only; values folded: lower case, accents
+stripped; parenthetical asides ignored; a channel name matches as a whole
+token, `-` and word characters being part of the token; a word whose
+name_hashes entry exists counts as that channel):
+    1. a `channel: <value>` line (also `- **channel:** <value>`);
+    2. a quoted `'channel:<name>'` / `"channel:<name>"` label;
+    3. a `tags: [ ... ]` flow list (search uses it only when 1-2 name none;
+       the doctor joins it with 1-2 for check 3);
+    4. search only, when 1-3 name none: path_defaults.
+Search tags print the channel names joined by `+` (sorted), `?` for none.
+
+Search: ROUTER.md rows first (at most 3), then file hits in *.md, *.yaml,
+*.yml, *.txt under the roots. Never read: dot files and dot folders, .git,
+node_modules, bin/, the router file, names matching *.env, .env*, *secret*,
+*token*, *credential*; without --raw also *raw*, _tmp/, raw/ and the
+raw_roots. Ignore files (.gitignore and friends) are not honoured, symlinks
+are not followed, files over 2 MiB and files holding a NUL byte (binary) are
+not searched. A query term matches at the start of a word, ignoring case and
+accents on Latin letters; at most 40 matching lines count per file. A line
+that looks like a credential is printed as
+`[line withheld: looks like a credential]`.
+Engines: `rg` (ripgrep, used only if already on PATH) and `python` (pure
+Python, never spawns rg); both give the same ranked output: rg only finds
+the candidate lines, the deny rules, ranking and printing are shared Python
+code. --engine wins over $SB_ENGINE; `auto` (default) picks rg when it is
+on PATH, else python. --engine rg without rg on PATH is a usage error.
+--channel X is strict: only notes whose channel is exactly X; untagged and
+mixed notes are withheld and counted.
+
+Search output:
+    sb "<query>"[ --channel X]: <r> router + <k> of <n> file hits, <t> ms, engine <rg|python>[, <w> withheld by channel filter]
+    R [<ch>] <topic> -> <paths> | <description>
+    <i> [<channel or ?>] <path relative to home>[:<line>]  <best line or (path match)>
+    no hits: not in the second brain.
+Exit codes: 0 = search ran (hits or none), 2 = usage or config error
+(unknown flag, no query terms, --channel not configured, bad --engine, an
+unusable scan key while name_hashes has entries).
+
+Doctor (--doctor; never spawns rg): notes are *.md files below a folder of
+home (files directly in home, such as README.md and the router file, are
+not notes), under the roots, with the search deny rules applied (raw roots
+and raw rules excluded). Checks (second-brain/DOCTOR-SPEC.md):
+    1 a router path does not exist (or the router file is missing)  exit 1
+    2 a note has no `channel:` line, no channel label and no
+      configured channel in tags (path defaults do not count)       exit 3
+    3 channel and tags together name more than one channel           exit 3
+    4 a note with one channel sits in a folder that disagrees: the
+      path default for its path, or else its first folder, is not
+      its channel                                                    exit 3
+    5 a `links:` entry (flow or block list) or a `[[target|label]]`
+      / `[[target#anchor]]` link resolves (path from home, path from
+      the note's folder, `.md` optional, or a unique file stem) to a
+      note whose channel is not the linking note's; unresolved links
+      are ignored; one line per linking note                        exit 3
+    6 a router row does not name exactly one configured channel, or
+      one of its paths sits outside that channel's folder (the path
+      default for the path, or else its first folder, is not the
+      row's channel)                                                 exit 3
+    7 a folder directly holding notes is not covered by a router path
+      (that folder or an ancestor)                                   warn
+    8 a line looks like an email address, a phone number (9 to 15
+      digits with the usual separators), an IBAN, or a date next to
+      a birth keyword (born, DOB, date of birth); plain dates, times,
+      prices, versions and note ids do not count (heuristic)         warn
+    9 a token of the `channel:` value (split on , + / | and spaces,
+      asides dropped) or a `'channel:<name>'` label is not in channels
+      (a word with a name_hashes entry counts as its channel)        exit 3
+    Checks 4 and 5 use the note's channel set from its `channel:` line,
+    label and tags together: a note with several channels (check 3) or
+    none (check 2) is not folder-checked, and a link counts as cross-channel
+    when the linked note names a channel the linking note does not.
+Doctor output: one line per finding, sorted by check then path:
+    FAIL <check> <path>      (WARN for 7, 8 and disabled fail_on_* checks)
+    sb doctor: <n> notes, <r> router rows, <f> failures, <w> warnings
+Paths are relative to home (folders end with `/`; checks 1 and 6 print the
+router path as written). The matching line is never printed.
+Exit code: 3 if a check of exit 3 failed, else 1 if check 1 failed, else 0.
+
+Scan key (name_hashes): 32 random bytes in $XDG_CONFIG_HOME/grok-kit/scan.key
+(an absolute XDG_CONFIG_HOME only), else ~/.config/grok-kit/scan.key; file
+mode 0600, folder mode 0700, outside every repo; never printed.
+    --init-key      creates it (folder made 0700 when missing; an existing
+                    folder open to group or others, or an existing key, is
+                    refused); prints the path. Reads no config.
+    --hash-name     prints the name hash of each non-blank stdin line, in
+                    order; each line must be one word of letters and digits
+                    (folded); otherwise exit 2, nothing printed and the line
+                    never echoed. Needs the key; reads no config.
+Both take no other arguments (--config is ignored). With name_hashes
+entries, search and --doctor read the key first and fail closed (exit 2, one
+line naming the file and `sb --init-key`) when it is missing, unreadable, a
+symlink, not a regular file, another user's, open to group or others, or not
+32 bytes; there is no unkeyed fallback. Rotation: a new key invalidates every
+entry; delete the key, run --init-key and re-hash the plain words with
+--hash-name (unkeyed sha256 entries of older kits must be re-hashed too).
+
+Read-only: sb never writes, moves or deletes anything; the one exception is
+--init-key, which creates only the scan key. Stdlib only, Python 3.9+.
+"""
+
+import errno
+import fnmatch
+import hashlib
+import hmac
+import os
+import re
+import secrets
+import shutil
+import stat
+import subprocess
+import sys
+import time
+import unicodedata
+
+
+class ConfigError(Exception):
+    """A malformed or invalid kit.config.yaml (exit 2)."""
+
+
+class UsageError(Exception):
+    """A bad command line (exit 2)."""
+
+
+class ScanKeyError(Exception):
+    """A missing or unusable scan key, or a refused --init-key (exit 2)."""
+
+
+# ---------------------------------------------------------------- defaults
+
+DEFAULT_HOME = "${HOME}/second-brain"
+DEFAULT_ROUTER = "ROUTER.md"
+DEFAULT_CHANNELS = ("dance-school", "other-activities")
+DOCTOR_FLAGS = (
+    "fail_on_untagged", "fail_on_multiple_channels", "fail_on_folder_mismatch",
+    "fail_on_cross_channel_link", "fail_on_missing_router_path",
+)
+CONFIG_NAME = "kit.config.yaml"
+
+GLOBS = ("*.md", "*.yaml", "*.yml", "*.txt")
+DENY_NAMES = ("*.env", ".env*", "*secret*", "*token*", "*credential*")
+DENY_DIRS = ("node_modules", "bin")
+RAW_NAMES = ("*raw*",)
+RAW_DIRS = ("_tmp", "raw")
+MAX_FILESIZE = 2 * 1024 * 1024
+MAX_COUNT = 40
+HEAD_LINES = 30
+HEAD_LINE_CHARS = 4096
+DEFAULT_LIMIT = 8
+ENGINES = ("auto", "rg", "python")
+
+SECRET_RE = re.compile(r"(sk-[A-Za-z0-9_-]{16,}|gh[pousr]_[A-Za-z0-9]{20,}|github_pat_|xox[abprs]-|"
+                       r"AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY|eyJ[A-Za-z0-9_-]{20,}\.|"
+                       r"(?i:(password|passwd|api[_-]?key|secret|token|bearer)\s*[:=]\s*['\"]?[A-Za-z0-9_\-/+]{8,}))")
+STOP = set("the a an and or of for to in on at is are was what where how when who my his her with about from".split())
+CHANNEL_FORBIDDEN = re.compile(r"[\s,+|/\[\]\"']")
+HASH_KEY_RE = re.compile(r"[0-9a-fA-F]{16}")
+NAME_WORD_RE = re.compile(r"[^\W_]+")
+
+KEY_DIR = "grok-kit"
+KEY_FILE = "scan.key"
+KEY_BYTES = 32
+KEY_HINT = "create it once with: sb --init-key"
+
+
+def fold(s):
+    return "".join(c for c in unicodedata.normalize("NFKD", s.lower()) if not unicodedata.combining(c))
+
+
+# ---------------------------------------------------------------- scan key
+
+def name_hash(key, word):
+    """The name_hashes key of a folded word: the first 16 hex chars of
+    HMAC-SHA256(scan key, word)."""
+    return hmac.new(key, word.encode("utf-8"), hashlib.sha256).hexdigest()[:16]
+
+
+def scan_key_path(environ):
+    """$XDG_CONFIG_HOME/grok-kit/scan.key (an absolute XDG_CONFIG_HOME only,
+    as the XDG spec says), else $HOME/.config/grok-kit/scan.key."""
+    base = environ.get("XDG_CONFIG_HOME") or ""
+    if not os.path.isabs(base):
+        home = environ.get("HOME") or ""
+        if not os.path.isabs(home):
+            raise ScanKeyError("the scan key lives under $HOME/.config, but HOME is not set; set HOME, then "
+                               + KEY_HINT)
+        base = os.path.join(home, ".config")
+    return os.path.join(base, KEY_DIR, KEY_FILE)
+
+
+def _private_mode(st):
+    return not stat.S_IMODE(st.st_mode) & 0o077
+
+
+def _owned(st):
+    return not hasattr(os, "getuid") or st.st_uid == os.getuid()
+
+
+def read_scan_key(environ):
+    """The key bytes. Fails closed (ScanKeyError) when the file is missing or
+    unreadable, is a symlink or not a regular file, belongs to another user,
+    is open to group or others, or does not hold exactly 32 bytes. The bytes
+    are never printed."""
+    path = scan_key_path(environ)
+    flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0)
+    try:
+        fd = os.open(path, flags)
+    except FileNotFoundError:
+        raise ScanKeyError("second_brain.name_hashes needs the scan key %s, which does not exist; %s"
+                           % (path, KEY_HINT))
+    except OSError as exc:
+        why = "is a symlink, which is refused" if exc.errno == errno.ELOOP else "cannot be read"
+        raise ScanKeyError("the scan key %s %s; delete it and %s" % (path, why, KEY_HINT))
+    try:
+        st = os.fstat(fd)
+        if not stat.S_ISREG(st.st_mode):
+            raise ScanKeyError("the scan key %s is not a regular file; remove it and %s" % (path, KEY_HINT))
+        if not _owned(st):
+            raise ScanKeyError("the scan key %s belongs to another user; delete it and %s" % (path, KEY_HINT))
+        if not _private_mode(st):
+            raise ScanKeyError("the scan key %s is open to other users; run chmod 600 on it if only you ever "
+                               "had access, else delete it, %s and re-hash name_hashes" % (path, KEY_HINT))
+        data = b""
+        while len(data) <= KEY_BYTES:
+            chunk = os.read(fd, KEY_BYTES + 1 - len(data))
+            if not chunk:
+                break
+            data += chunk
+    except OSError:
+        raise ScanKeyError("the scan key %s cannot be read; delete it and %s" % (path, KEY_HINT))
+    finally:
+        os.close(fd)
+    if len(data) != KEY_BYTES:
+        raise ScanKeyError("the scan key %s is not a %d-byte key; delete it, %s and re-hash name_hashes"
+                           % (path, KEY_BYTES, KEY_HINT))
+    return data
+
+
+def _make_private_dir(path):
+    """Create path with mode 0700 (missing parents with the default mode);
+    an existing folder is left as it is. True if it was created."""
+    try:
+        os.mkdir(path, 0o700)
+    except FileExistsError:
+        return False
+    except FileNotFoundError:
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        return _make_private_dir(path)
+    os.chmod(path, 0o700)  # the umask can only have narrowed it
+    return True
+
+
+def init_scan_key(environ):
+    """Create the scan key: 32 bytes from the OS CSPRNG in a new file of mode
+    0600, in a folder of mode 0700 (created so when missing; an existing one
+    open to others is refused, never chmod-ed). The file appears complete in
+    one step (written to a temp name, then hard-linked); an existing key is
+    never replaced. Returns the path."""
+    path = scan_key_path(environ)
+    folder = os.path.dirname(path)
+    if os.path.lexists(path):
+        raise ScanKeyError("the scan key %s already exists; to rotate it, delete it first, then run sb --init-key "
+                           "and re-hash name_hashes (see second-brain/bin/README.md)" % path)
+    try:
+        _make_private_dir(os.path.dirname(folder))
+        _make_private_dir(folder)
+        st = os.stat(folder)
+    except OSError:
+        raise ScanKeyError("the key folder %s cannot be created" % folder)
+    if not stat.S_ISDIR(st.st_mode) or not _owned(st):
+        raise ScanKeyError("the key folder %s is not a folder of yours" % folder)
+    if not _private_mode(st):
+        raise ScanKeyError("the key folder %s is open to other users; run chmod 700 on it, then sb --init-key"
+                           % folder)
+    tmp = os.path.join(folder, ".%s.%s.tmp" % (KEY_FILE, secrets.token_hex(8)))
+    try:
+        fd = os.open(tmp, os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_NOFOLLOW", 0), 0o600)
+        try:
+            os.fchmod(fd, 0o600)
+            view = memoryview(secrets.token_bytes(KEY_BYTES))
+            while view:
+                view = view[os.write(fd, view):]
+            os.fsync(fd)
+        finally:
+            os.close(fd)
+        os.link(tmp, path)
+    except FileExistsError:
+        raise ScanKeyError("the scan key %s already exists; it was not replaced" % path)
+    except OSError:
+        raise ScanKeyError("the scan key %s cannot be created" % path)
+    finally:
+        try:
+            os.unlink(tmp)
+        except OSError:
+            pass
+    return path
+
+
+def hash_names(key, text):
+    """The name hash of each non-blank line of text, in order. Each line must
+    be one word (letters and digits, folded like note values); a line that is
+    not is refused without echoing it, and nothing is returned."""
+    out = []
+    for n, line in enumerate(text.splitlines(), 1):
+        word = fold(line).strip()
+        if not word:
+            continue
+        if not NAME_WORD_RE.fullmatch(word):
+            raise UsageError("sb: line %d is not one word (letters and digits only); nothing was printed" % n)
+        out.append(name_hash(key, word))
+    return out
+
+
+# ---------------------------------------------------------------- YAML subset
+
+_NESTED = object()
+_INT_RE = re.compile(r"[-+]?[0-9]+")
+_TRUE = ("true", "True", "TRUE")
+_FALSE = ("false", "False", "FALSE")
+_NULL = ("null", "Null", "NULL", "~")
+_DQ_ESCAPES = {'"': '"', "\\": "\\", "/": "/", "n": "\n", "t": "\t", "r": "\r", "0": "\0"}
+_PLAIN_BAD_START = "|>&*!%@`]},?"
+
+
+def _err(lineno, reason):
+    return ConfigError("line %d: %s" % (lineno, reason))
+
+
+def _parse_double(s, i, lineno):
+    out, j, n = [], i + 1, len(s)
+    while j < n:
+        c = s[j]
+        if c == '"':
+            return "".join(out), j + 1
+        if c == "\\":
+            if j + 1 >= n:
+                break
+            e = s[j + 1]
+            if e in _DQ_ESCAPES:
+                out.append(_DQ_ESCAPES[e])
+                j += 2
+                continue
+            width = {"x": 2, "u": 4, "U": 8}.get(e)
+            digits = s[j + 2:j + 2 + width] if width else ""
+            if not width or not re.fullmatch(r"[0-9a-fA-F]{%d}" % width, digits):
+                raise _err(lineno, "unknown escape in a double-quoted scalar")
+            out.append(chr(int(digits, 16)))
+            j += 2 + width
+            continue
+        out.append(c)
+        j += 1
+    raise _err(lineno, "unterminated double-quoted scalar")
+
+
+def _parse_single(s, i, lineno):
+    out, j, n = [], i + 1, len(s)
+    while j < n:
+        c = s[j]
+        if c == "'":
+            if j + 1 < n and s[j + 1] == "'":
+                out.append("'")
+                j += 2
+                continue
+            return "".join(out), j + 1
+        out.append(c)
+        j += 1
+    raise _err(lineno, "unterminated single-quoted scalar")
+
+
+def _resolve_plain(token, lineno):
+    if not token:
+        raise _err(lineno, "empty value")
+    if token[0] in _PLAIN_BAD_START or token.startswith("- ") or token == "-":
+        raise _err(lineno, "unsupported YAML syntax (block scalar, anchor, alias, tag or nested block)")
+    if ": " in token or token.endswith(":") or " #" in token:
+        raise _err(lineno, "unexpected ':' or '#' in a plain scalar")
+    if token in _TRUE:
+        return True
+    if token in _FALSE:
+        return False
+    if token in _NULL:
+        return None
+    if _INT_RE.fullmatch(token):
+        return int(token)
+    return token
+
+
+def _skip_ws(s, j):
+    while j < len(s) and s[j] in " \t":
+        j += 1
+    return j
+
+
+def _expect_end(s, j, lineno):
+    j = _skip_ws(s, j)
+    if j < len(s) and s[j] != "#":
+        raise _err(lineno, "unexpected text after a value")
+
+
+def _flow_scalar(s, j, lineno, stops):
+    """A quoted or plain scalar inside a flow collection; returns (value, j)."""
+    if j < len(s) and s[j] == '"':
+        return _parse_double(s, j, lineno)
+    if j < len(s) and s[j] == "'":
+        return _parse_single(s, j, lineno)
+    k = j
+    while k < len(s) and s[k] not in stops:
+        if s[k] in "[{":
+            raise _err(lineno, "nested flow collections are not supported")
+        k += 1
+    if k >= len(s):
+        raise _err(lineno, "unterminated flow collection")
+    return _resolve_plain(s[j:k].strip(), lineno), k
+
+
+def _parse_flow_seq(s, i, lineno):
+    items, j = [], _skip_ws(s, i + 1)
+    if j < len(s) and s[j] == "]":
+        return items, j + 1
+    while True:
+        j = _skip_ws(s, j)
+        if j < len(s) and s[j] == "]" and items:  # trailing comma
+            return items, j + 1
+        value, j = _flow_scalar(s, j, lineno, ",]")
+        items.append(value)
+        j = _skip_ws(s, j)
+        if j >= len(s):
+            raise _err(lineno, "unterminated flow list")
+        if s[j] == "]":
+            return items, j + 1
+        if s[j] != ",":
+            raise _err(lineno, "expected ',' or ']' in a flow list")
+        j += 1
+
+
+def _parse_flow_map(s, i, lineno):
+    result, j = {}, _skip_ws(s, i + 1)
+    if j < len(s) and s[j] == "}":
+        return result, j + 1
+    while True:
+        j = _skip_ws(s, j)
+        if j < len(s) and s[j] == "}" and result:  # trailing comma
+            return result, j + 1
+        key, j = _flow_scalar(s, j, lineno, ":,}")
+        j = _skip_ws(s, j)
+        if j >= len(s) or s[j] != ":":
+            raise _err(lineno, "expected ':' in a flow mapping")
+        if not isinstance(key, str) or key in result:
+            raise _err(lineno, "bad or duplicate key in a flow mapping")
+        value, j = _flow_scalar(s, _skip_ws(s, j + 1), lineno, ",}")
+        result[key] = value
+        j = _skip_ws(s, j)
+        if j >= len(s):
+            raise _err(lineno, "unterminated flow mapping")
+        if s[j] == "}":
+            return result, j + 1
+        if s[j] != ",":
+            raise _err(lineno, "expected ',' or '}' in a flow mapping")
+        j += 1
+
+
+def _parse_value(s, lineno, scalars_only=False):
+    """The value text after `key:` or `- `; _NESTED when it is empty."""
+    s = s.strip(" \t")
+    if not s or s.startswith("#"):
+        return _NESTED
+    head = s[0]
+    if head in "[{" and scalars_only:
+        raise _err(lineno, "block list items must be scalars")
+    if head == '"':
+        value, j = _parse_double(s, 0, lineno)
+    elif head == "'":
+        value, j = _parse_single(s, 0, lineno)
+    elif head == "[":
+        value, j = _parse_flow_seq(s, 0, lineno)
+    elif head == "{":
+        value, j = _parse_flow_map(s, 0, lineno)
+    else:
+        cut = re.search(r"[ \t]#", s)
+        return _resolve_plain((s[:cut.start()] if cut else s).rstrip(" \t"), lineno)
+    _expect_end(s, j, lineno)
+    return value
+
+
+def _is_item(text):
+    return text == "-" or text.startswith("- ")
+
+
+def _split_key(text, lineno):
+    if text[0] in "\"'":
+        key, j = (_parse_double if text[0] == '"' else _parse_single)(text, 0, lineno)
+        j = _skip_ws(text, j)
+        if j >= len(text) or text[j] != ":" or (j + 1 < len(text) and text[j + 1] not in " \t"):
+            raise _err(lineno, "expected ':' after a quoted key")
+        return key, text[j + 1:]
+    m = re.search(r":(?:[ \t]|$)", text)
+    if not m:
+        raise _err(lineno, "expected 'key: value'")
+    key = text[:m.start()].rstrip(" \t")
+    if not key or key[0] in "#[]{},&*!|>%@`?" or re.search(r"[ \t]#", key):
+        raise _err(lineno, "bad key")
+    return key, text[m.end():]
+
+
+def _parse_list(lines, i, indent):
+    items = []
+    while i < len(lines):
+        lineno, ind, text = lines[i]
+        if ind < indent or (ind == indent and not _is_item(text)):
+            break
+        if ind > indent:
+            raise _err(lineno, "unexpected indentation")
+        value = _parse_value(text[1:], lineno, scalars_only=True)
+        if value is _NESTED:
+            raise _err(lineno, "block list items must be scalars")
+        items.append(value)
+        i += 1
+    return items, i
+
+
+def _parse_mapping(lines, i, indent):
+    result = {}
+    while i < len(lines):
+        lineno, ind, text = lines[i]
+        if ind < indent:
+            break
+        if ind > indent:
+            raise _err(lineno, "unexpected indentation")
+        if _is_item(text):
+            raise _err(lineno, "a list item where a key was expected")
+        key, rest = _split_key(text, lineno)
+        if key in result:
+            raise _err(lineno, "duplicate key")
+        value = _parse_value(rest, lineno)
+        i += 1
+        if value is _NESTED:
+            value = None
+            if i < len(lines) and lines[i][1] > indent:
+                value, i = _parse_block(lines, i, lines[i][1])
+            elif i < len(lines) and lines[i][1] == indent and _is_item(lines[i][2]):
+                value, i = _parse_list(lines, i, indent)
+        result[key] = value
+    return result, i
+
+
+def _parse_block(lines, i, indent):
+    if _is_item(lines[i][2]):
+        return _parse_list(lines, i, indent)
+    return _parse_mapping(lines, i, indent)
+
+
+def parse_config_text(text):
+    """Parse the YAML subset above into nested dicts, lists and scalars."""
+    if text[:1] == chr(0xFEFF):  # a UTF-8 byte order mark
+        text = text[1:]
+    lines = []
+    for lineno, raw in enumerate(text.split("\n"), 1):
+        raw = raw.rstrip("\r")
+        content = raw.lstrip(" \t")
+        if not content or content.startswith("#"):
+            continue
+        lead = raw[:len(raw) - len(content)]
+        if "\t" in lead:
+            raise _err(lineno, "tab in indentation")
+        lines.append((lineno, len(lead), content.rstrip(" \t")))
+    if not lines:
+        return {}
+    if _is_item(lines[0][2]):
+        raise _err(lines[0][0], "the top level must be a mapping")
+    result, i = _parse_mapping(lines, 0, lines[0][1])
+    if i < len(lines):
+        raise _err(lines[i][0], "unexpected indentation")
+    return result
+
+
+# ---------------------------------------------------------------- settings
+
+_VAR_RE = re.compile(r"\$\{([A-Za-z_][A-Za-z0-9_]*)\}")
+
+
+def _expand_path(value, environ, base_dir, what, fallbacks=None):
+    def sub(m):
+        name = m.group(1)
+        if environ.get(name):
+            return environ[name]
+        if fallbacks and name in fallbacks:
+            return fallbacks[name]()
+        raise ConfigError("%s names an unset variable" % what)
+
+    if not isinstance(value, str) or not value:
+        raise ConfigError("%s must be a non-empty string" % what)
+    path = _VAR_RE.sub(sub, value)
+    if "${" in _VAR_RE.sub("", value):
+        raise ConfigError("%s has a malformed ${VAR}" % what)
+    if path == "~" or path.startswith("~/"):
+        if not environ.get("HOME"):
+            raise ConfigError("%s needs HOME" % what)
+        path = environ["HOME"] + path[1:]
+    if not os.path.isabs(path):
+        path = os.path.join(base_dir or os.getcwd(), path)
+    return os.path.normpath(path)
+
+
+def _find_config(config_path, environ):
+    if config_path:
+        if not os.path.isfile(config_path):
+            raise ConfigError("config file not found (--config)")
+        return config_path
+    if environ.get("KIT_CONFIG"):
+        if not os.path.isfile(environ["KIT_CONFIG"]):
+            raise ConfigError("config file not found ($KIT_CONFIG)")
+        return environ["KIT_CONFIG"]
+    candidates = []
+    if environ.get("KIT_HOME"):
+        candidates.append(os.path.join(environ["KIT_HOME"], CONFIG_NAME))
+    if environ.get("HOME"):
+        candidates.append(os.path.join(environ["HOME"], "grok-kit", CONFIG_NAME))
+    for path in candidates:
+        if os.path.isfile(path):
+            return path
+    return None
+
+
+def _inside_relative(value, what):
+    """A path relative to home that stays inside it."""
+    if not isinstance(value, str) or not value.strip():
+        raise ConfigError("%s entries must be non-empty strings" % what)
+    norm = os.path.normpath(value)
+    if os.path.isabs(value) or norm == ".." or norm.startswith(".." + os.sep):
+        raise ConfigError("%s entries must be relative paths inside home" % what)
+    return value
+
+
+def _string_list(block, key, default):
+    value = block.get(key)
+    if value is None:
+        return list(default)
+    if not isinstance(value, list):
+        raise ConfigError("second_brain.%s must be a list" % key)
+    return [_inside_relative(v, "second_brain." + key) for v in value]
+
+
+def _channels(block):
+    value = block.get("channels")
+    if value is None:
+        return list(DEFAULT_CHANNELS)
+    if not isinstance(value, list) or not value:
+        raise ConfigError("second_brain.channels must be a non-empty list")
+    seen = set()
+    for name in value:
+        if not isinstance(name, str) or not name or CHANNEL_FORBIDDEN.search(name):
+            raise ConfigError("second_brain.channels holds a bad channel name")
+        if fold(name) in seen:
+            raise ConfigError("second_brain.channels holds a duplicate")
+        seen.add(fold(name))
+    return list(value)
+
+
+def _channel_map(block, key, channels, key_check):
+    value = block.get(key)
+    if value is None:
+        return None
+    if not isinstance(value, dict):
+        raise ConfigError("second_brain.%s must be a mapping" % key)
+    out = {}
+    for k, v in value.items():
+        k = key_check(k)
+        if v not in channels:
+            raise ConfigError("second_brain.%s maps to a channel that is not configured" % key)
+        out[k] = v
+    return out
+
+
+def _prefix_key(k):
+    if not isinstance(k, str) or not k.strip():
+        raise ConfigError("second_brain.path_defaults keys must be non-empty strings")
+    return k
+
+
+def _hash_key(k):
+    if not isinstance(k, str) or not HASH_KEY_RE.fullmatch(k):
+        raise ConfigError("second_brain.name_hashes keys must be 16 hex characters")
+    return k.lower()
+
+
+def _doctor_flags(block):
+    value = block.get("doctor")
+    flags = dict((name, True) for name in DOCTOR_FLAGS)
+    if value is None:
+        return flags
+    if not isinstance(value, dict):
+        raise ConfigError("second_brain.doctor must be a mapping")
+    for name, flag in value.items():
+        if name not in flags:
+            raise ConfigError("second_brain.doctor has an unknown flag")
+        if not isinstance(flag, bool):
+            raise ConfigError("second_brain.doctor flags must be true or false")
+        flags[name] = flag
+    return flags
+
+
+def load_settings(config_path=None, environ=None):
+    """Resolve the second_brain settings (see the docstring) into a dict with
+    the keys home, router_file, channels, roots, raw_roots, path_defaults,
+    name_hashes, boost_paths, doctor and config_path."""
+    environ = os.environ if environ is None else environ
+    path = _find_config(config_path, environ)
+    data = {}
+    if path is not None:
+        try:
+            with open(path, encoding="utf-8") as fh:
+                data = parse_config_text(fh.read())
+        except (OSError, UnicodeDecodeError):
+            raise ConfigError("config file cannot be read as UTF-8 text")
+    base_dir = os.path.dirname(os.path.abspath(path)) if path else None
+    block = data.get("second_brain")
+    if block is None:
+        block = {}
+    if not isinstance(block, dict):
+        raise ConfigError("second_brain must be a mapping")
+
+    def kit_home():
+        kit = data.get("kit")
+        if not isinstance(kit, dict) or not kit.get("home"):
+            raise ConfigError("second_brain.home names an unset variable")
+        return _expand_path(kit["home"], environ, base_dir, "kit.home")
+
+    if environ.get("SB_HOME"):
+        home = _expand_path(environ["SB_HOME"], environ, None, "SB_HOME")
+    else:
+        home = _expand_path(block.get("home") or DEFAULT_HOME, environ, base_dir,
+                            "second_brain.home", {"KIT_HOME": kit_home})
+    router_file = block.get("router_file")
+    router_file = DEFAULT_ROUTER if router_file is None else _inside_relative(router_file, "second_brain.router_file")
+    channels = _channels(block)
+    path_defaults = _channel_map(block, "path_defaults", channels, _prefix_key)
+    if path_defaults is None:
+        path_defaults = dict((name + "/", name) for name in channels)
+    name_hashes = _channel_map(block, "name_hashes", channels, _hash_key) or {}
+    boost = block.get("boost_paths")
+    if boost is not None and (not isinstance(boost, list) or not all(isinstance(b, str) and b for b in boost)):
+        raise ConfigError("second_brain.boost_paths must be a list of path prefixes")
+    return {
+        "home": home,
+        "router_file": router_file,
+        "channels": channels,
+        "roots": _string_list(block, "roots", ["."]),
+        "raw_roots": _string_list(block, "raw_roots", []),
+        "path_defaults": path_defaults,
+        "name_hashes": name_hashes,
+        "boost_paths": list(boost or []),
+        "doctor": _doctor_flags(block),
+        "config_path": path,
+    }
+
+
+# ---------------------------------------------------------------- query terms
+
+def _fold_classes():
+    """Base letter -> the Latin letters that fold to it, for accent-tolerant
+    term patterns (`cafe` finds `Cafe` with an accent)."""
+    classes = {}
+    for cp in list(range(0xC0, 0x250)) + list(range(0x1E00, 0x1F00)):
+        ch = chr(cp)
+        base = fold(ch)
+        if len(base) == 1 and "a" <= base <= "z" and ch != base:
+            classes.setdefault(base, []).append(ch)
+    return dict((base, "[" + base + "".join(chars) + "]") for base, chars in classes.items())
+
+
+FOLD_CLASSES = _fold_classes()
+# Escaped in both Python re and the Rust regex syntax rg uses.
+REGEX_META = set("\\.+*?()|[]{}^$#&-~")
+
+
+def terms_of(q):
+    out = []
+    for w in re.findall(r"[\w.+-]+", fold(q)):
+        w = w.strip(".-")
+        if len(w) < 2 or w in STOP:
+            continue
+        if len(w) > 4 and w.endswith("s") and not w.endswith("ss"):
+            w = w[:-1]
+        if w not in out:
+            out.append(w)
+    return out
+
+
+def term_re(t):
+    """Word-start anchored and accent tolerant; valid for both engines."""
+    return r"\b" + "".join(FOLD_CLASSES.get(c) or ("\\" + c if c in REGEX_META else c) for c in t)
+
+
+# ---------------------------------------------------------------- the brain
+
+def _join(rel_dir, name):
+    return name if rel_dir in ("", ".") else rel_dir + "/" + name
+
+
+def _under(rel, prefixes):
+    for p in prefixes:
+        p = os.path.normpath(p).replace(os.sep, "/")
+        if p == "." or rel == p or rel.startswith(p + "/"):
+            return True
+    return False
+
+
+def _relnorm(path):
+    return os.path.normpath(path).replace(os.sep, "/")
+
+
+def tag(c):
+    return "+".join(sorted(c)) if c else "?"
+
+
+class Brain:
+    """The configured note tree: deny rules, the walker, channels, router."""
+
+    def __init__(self, settings):
+        self.s = settings
+        self.home = settings["home"]
+        self.channels = list(settings["channels"])
+        self.router_rel = _relnorm(settings["router_file"])
+        self.channel_res = [
+            (name, re.compile(r"(?<![\w-])" + re.escape(fold(name)) + r"(?![\w-])"))
+            for name in self.channels
+        ]
+        self.by_fold = dict((fold(name), name) for name in self.channels)
+        self.name_hashes = settings["name_hashes"]
+        self.name_key = settings.get("name_key")
+        if self.name_hashes and self.name_key is None:
+            raise ScanKeyError("second_brain.name_hashes needs the scan key; " + KEY_HINT)
+        self.path_defaults = sorted(
+            ((_relnorm(p), ch) for p, ch in settings["path_defaults"].items()),
+            key=lambda item: -len(item[0]),
+        )
+        self._info = {}
+
+    # -- deny rules
+
+    def denied(self, rel, raw, is_dir=False):
+        parts = rel.split("/")
+        last = len(parts) - 1
+        for i, part in enumerate(parts):
+            low = part.lower()
+            if part.startswith("."):
+                return True
+            names = DENY_NAMES + (() if raw else RAW_NAMES)
+            if any(fnmatch.fnmatchcase(low, g) for g in names):
+                return True
+            if i < last or is_dir:
+                if low in DENY_DIRS or (not raw and low in RAW_DIRS):
+                    return True
+        if not is_dir and rel.lower() == self.router_rel.lower():
+            return True
+        return not raw and _under(rel, self.s["raw_roots"])
+
+    def eligible(self, rel, raw):
+        """A file sb may read: allowed name, regular (no symlink), <= 2 MiB."""
+        if not any(fnmatch.fnmatchcase(rel.rsplit("/", 1)[-1], g) for g in GLOBS):
+            return False
+        if self.denied(rel, raw):
+            return False
+        try:
+            st = os.lstat(os.path.join(self.home, rel))
+        except OSError:
+            return False
+        return stat.S_ISREG(st.st_mode) and st.st_size <= MAX_FILESIZE
+
+    def search_roots(self, raw):
+        """Existing roots as normalized relative paths, raw roots last."""
+        out = []
+        for root in self.s["roots"] + (self.s["raw_roots"] if raw else []):
+            rel = _relnorm(root)
+            full = os.path.join(self.home, rel)
+            if rel != "." and os.path.islink(full):
+                continue
+            if os.path.isdir(full) or os.path.isfile(full):
+                if rel not in out:
+                    out.append(rel)
+        return out
+
+    def walk(self, roots, raw):
+        """The eligible files under roots, each once (the python engine's
+        file list and the doctor's)."""
+        seen, out = set(), []
+
+        def add(rel):
+            if rel not in seen and self.eligible(rel, raw):
+                seen.add(rel)
+                out.append(rel)
+
+        for root in roots:
+            full = os.path.join(self.home, root)
+            if os.path.isfile(full):
+                add(root)
+                continue
+            for dirpath, dirnames, filenames in os.walk(full):
+                rel_dir = _relnorm(os.path.relpath(dirpath, self.home))
+                dirnames[:] = sorted(
+                    d for d in dirnames
+                    if not os.path.islink(os.path.join(dirpath, d))
+                    and not self.denied(_join(rel_dir, d), raw, is_dir=True)
+                )
+                for name in sorted(filenames):
+                    add(_join(rel_dir, name))
+        return out
+
+    # -- channels
+
+    def chans_from_text(self, v):
+        v = re.sub(r"\([^)]*\)", " ", v)  # parenthetical asides don't tag
+        f = fold(v)
+        c = set(name for name, rx in self.channel_res if rx.search(f))
+        if self.name_hashes:
+            for w in NAME_WORD_RE.findall(f):
+                hit = self.name_hashes.get(name_hash(self.name_key, w))
+                if hit:
+                    c.add(hit)
+        return c
+
+    def head(self, rel):
+        lines = []
+        try:
+            with open(os.path.join(self.home, rel), encoding="utf-8", errors="ignore") as fh:
+                for _ in range(HEAD_LINES):
+                    ln = fh.readline(HEAD_LINE_CHARS)
+                    if not ln:
+                        break
+                    lines.append(ln.rstrip("\n"))
+        except OSError:
+            pass
+        return lines
+
+    def channel_info(self, rel):
+        """{'line': bool, 'explicit': set, 'labelled': bool, 'tags': set or None,
+        'unknown': int} from the first lines of a note; `unknown` counts the
+        channel tokens (of `channel:` lines and labels) that name no
+        configured channel (doctor check 9)."""
+        if rel in self._info:
+            return self._info[rel]
+        info = {"line": False, "explicit": set(), "labelled": False, "tags": None, "unknown": 0}
+        for ln in self.head(rel):
+            m = re.match(r"^\s*[-*>]*\s*\**channel\**\s*:\s*\**\s*(.+)", ln, re.I)
+            if m:
+                info["line"] = True
+                info["explicit"] |= self.chans_from_text(m.group(1))
+                info["unknown"] += sum(1 for t in self.channel_tokens(m.group(1)) if not self.chans_from_text(t))
+                continue
+            m = re.search(r"['\"]channel:([^'\"\s]+)['\"]", ln, re.I)
+            if m:
+                info["labelled"] = True
+                name = self.by_fold.get(fold(m.group(1)))
+                if name:
+                    info["explicit"].add(name)
+                else:
+                    info["unknown"] += 1
+                continue
+            m = re.match(r"^tags:\s*\[(.*)\]", ln)
+            if m and info["tags"] is None:
+                info["tags"] = self.chans_from_text(m.group(1))
+        self._info[rel] = info
+        return info
+
+    @staticmethod
+    def channel_tokens(value):
+        """The tokens of a `channel:` value: asides, quotes, bold markers and
+        a trailing comment dropped, split on , + / | and spaces."""
+        value = re.sub(r"\([^)]*\)", " ", value)
+        value = re.split(r"\s#", value)[0]
+        return [t.strip("\"'*`") for t in re.split(r"[,+/|\s]+", value) if t.strip("\"'*`")]
+
+    def doctor_channels(self, rel):
+        """The doctor's channel set of a note: `channel:` lines, labels and
+        tags together (path defaults do not count)."""
+        info = self.channel_info(rel)
+        return set(info["explicit"]) | set(info["tags"] or ())
+
+    def folder_channel(self, rel):
+        """The channel a path's folder claims: its path default, else its
+        first folder (checks 4 and 6)."""
+        default = self.path_default(rel)
+        if default:
+            return default
+        first = rel.split("/", 1)[0]
+        return self.by_fold.get(fold(first)) or first
+
+    def path_default(self, rel):
+        for prefix, ch in self.path_defaults:
+            if prefix == "." or rel == prefix or rel.startswith(prefix + "/"):
+                return ch
+        return None
+
+    def channel(self, rel):
+        """The search rule: explicit channel, else tags, else path default."""
+        info = self.channel_info(rel)
+        c = set(info["explicit"]) or set(info["tags"] or ())
+        if not c:
+            default = self.path_default(rel)
+            if default:
+                c = {default}
+        return c
+
+    # -- router
+
+    def load_router(self):
+        """(rows, found); a row is a dict topic, kw, ch, paths, desc."""
+        rows = []
+        try:
+            with open(os.path.join(self.home, self.router_rel), encoding="utf-8", errors="replace") as fh:
+                lines = fh.read().splitlines()
+        except OSError:
+            return rows, False
+        for ln in lines:
+            if not ln.startswith("|") or ln.startswith("|---"):
+                continue
+            cells = [x.strip() for x in ln.strip().strip("|").split("|")]
+            if len(cells) < 5 or cells[0] == "Topic":
+                continue
+            topic, kw, ch, paths, desc = cells[:5]
+            rows.append(dict(topic=topic, kw=fold(topic + ", " + kw),
+                             ch=set(x.strip() for x in ch.split("+") if x.strip()),
+                             paths=re.findall(r"`([^`]+)`", paths), desc=desc))
+        return rows, True
+
+
+def allowed(c, want):
+    """--channel is strict: exactly the wanted channel, nothing else."""
+    return not want or set(c) == {want}
+
+
+def router_hits(rows, terms, phrase, want):
+    out = []
+    for r in rows:
+        if not allowed(r["ch"], want):
+            continue
+        n = sum(1 for t in terms if re.search(r"\b" + re.escape(t), r["kw"]))
+        if not n:
+            continue
+        s = n * 10 + (8 if len(terms) > 1 and phrase in r["kw"] else 0) + (5 if n == len(terms) else 0)
+        out.append((s, r))
+    out.sort(key=lambda x: -x[0])
+    return out
+
+
+# ---------------------------------------------------------------- engines
+
+class EngineError(Exception):
+    """rg could not run (exit 2)."""
+
+
+def _lines_of(data):
+    lines = data.split(b"\n")
+    if lines and lines[-1] == b"":
+        lines.pop()
+    return lines
+
+
+def _read_text_file(path):
+    """The bytes of a searchable file, or None (unreadable, too big, binary)."""
+    try:
+        with open(path, "rb") as fh:
+            data = fh.read(MAX_FILESIZE + 1)
+    except OSError:
+        return None
+    if len(data) > MAX_FILESIZE or b"\0" in data:
+        return None
+    return data
+
+
+def python_engine(brain, roots, raw, pattern):
+    """Pure Python: walk, then match line by line. Never spawns rg."""
+    files = brain.walk(roots, raw)
+    rx = re.compile(pattern, re.IGNORECASE)
+    hits = {}
+    for rel in files:
+        data = _read_text_file(os.path.join(brain.home, rel))
+        if data is None:
+            continue
+        found = []
+        for n, line in enumerate(_lines_of(data), 1):
+            text = line.decode("utf-8", "surrogateescape")
+            if rx.search(text):
+                found.append((n, text))
+                if len(found) >= MAX_COUNT:
+                    break
+        if found:
+            hits[rel] = found
+    return files, hits
+
+
+_RG_HIT = re.compile(rb"([^\0]*)\0([0-9]+):([^\n]*)\n")
+
+
+def rg_engine(brain, roots, raw, pattern, rg):
+    """rg lists and matches; every result passes the same eligibility rules
+    as the python engine, so rg can only narrow nothing and add nothing."""
+    if not roots:
+        return [], {}
+    common = ["--no-config", "--no-ignore", "--color", "never", "--no-messages",
+              "--encoding", "none", "--max-filesize", str(MAX_FILESIZE + 1)]
+    for g in GLOBS:
+        common += ["-g", g]
+    deny = ["!" + g for g in DENY_NAMES] + ["!**/%s/**" % d for d in DENY_DIRS]
+    if not raw:
+        deny += ["!" + g for g in RAW_NAMES] + ["!**/%s/**" % d for d in RAW_DIRS]
+    for g in deny:
+        common += ["--iglob", g]
+    tail = ["--"] + ["./" + r if r.startswith("-") else r for r in roots]
+    files_cmd = [rg, "--files", "--null"] + common + tail
+    hits_cmd = [rg, "--ignore-case", "--line-number", "--with-filename", "--no-heading", "--null",
+                "--max-count", str(MAX_COUNT), "-e", pattern] + common + tail
+    try:
+        kw = dict(cwd=brain.home, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+        files_p = subprocess.Popen(files_cmd, **kw)
+        hits_p = subprocess.Popen(hits_cmd, **kw)
+    except OSError:
+        raise EngineError("sb: rg could not be started; try --engine python")
+    listed = files_p.communicate()[0]
+    found = hits_p.communicate()[0]
+    if files_p.returncode not in (0, 1) and not listed:
+        raise EngineError("sb: rg failed (exit %d); try --engine python" % files_p.returncode)
+
+    def rel_of(raw_path):
+        return _relnorm(raw_path.decode("utf-8", "surrogateescape"))
+
+    files, seen = [], set()
+    for raw_path in listed.split(b"\0"):
+        if raw_path:
+            rel = rel_of(raw_path)
+            if rel not in seen and brain.eligible(rel, raw):
+                seen.add(rel)
+                files.append(rel)
+    hits, lines_seen, binary = {}, set(), {}
+    for m in _RG_HIT.finditer(found):
+        rel, n = rel_of(m.group(1)), int(m.group(2))
+        if rel not in seen or (rel, n) in lines_seen:
+            continue
+        if rel not in binary:  # rg may print lines before a late NUL byte
+            binary[rel] = _read_text_file(os.path.join(brain.home, rel)) is None
+        if binary[rel]:
+            continue
+        found_lines = hits.setdefault(rel, [])
+        if len(found_lines) < MAX_COUNT:
+            lines_seen.add((rel, n))
+            found_lines.append((n, m.group(3).decode("utf-8", "surrogateescape")))
+    for rel in hits:
+        hits[rel].sort()
+    return files, hits
+
+
+def pick_engine(flag, environ):
+    choice = flag or environ.get("SB_ENGINE") or "auto"
+    if choice not in ENGINES:
+        raise UsageError("sb: --engine must be auto, rg or python")
+    rg = shutil.which("rg", path=environ.get("PATH", os.defpath))
+    if choice == "rg" and not rg:
+        raise UsageError("sb: --engine rg needs ripgrep (rg) on PATH; use --engine python")
+    if choice == "auto":
+        choice = "rg" if rg else "python"
+    return choice, rg
+
+
+# ---------------------------------------------------------------- search
+
+def clean(text):
+    """Printable text: invalid UTF-8 bytes dropped."""
+    return text.encode("utf-8", "surrogateescape").decode("utf-8", "ignore")
+
+
+def rank(brain, files, hits, terms, raw, rh):
+    """The shared ranking for both engines: [(score, rel, slot)] best first."""
+    phrase = " ".join(terms)
+    tre = [re.compile(term_re(t), re.I) for t in terms]
+    agg = {}
+
+    def slot(f):
+        return agg.setdefault(f, {"terms": set(), "pterms": set(), "hits": 0, "best": (-1, 0, "")})
+
+    for f in sorted(hits):
+        for n, text in hits[f]:
+            ft = fold(text)
+            ks = {i for i, r in enumerate(tre) if r.search(ft) or r.search(text)}
+            a = slot(f)
+            a["hits"] += 1
+            a["terms"] |= ks
+            sc = len(ks) * 4 + (3 if text.lstrip().startswith("#") else 0) + (5 if len(terms) > 1 and phrase in ft else 0)
+            if sc > a["best"][0]:
+                a["best"] = (sc, n, text)
+    for f in files:  # filename/path matches
+        ks = {i for i, r in enumerate(tre) if r.search(fold(f))}
+        if ks:
+            slot(f)["pterms"] = ks
+    routed = {p.rstrip("/") for _, r in rh[:3] for p in r["paths"]}
+    boost = brain.s["boost_paths"]
+    scored = []
+    for f, a in agg.items():
+        ct, pt = a["terms"], a["pterms"]
+        s = len(ct) * 10 + len(pt) * 6 + (15 if len(ct | pt) == len(terms) else 0) + min(a["hits"], 10) + max(a["best"][0], 0)
+        if _under(f, boost):
+            s += 4
+        if any(f == p or f.startswith(p + "/") for p in routed):
+            s += 8
+        if raw and (brain.denied(f, False) and not brain.denied(f, True)):
+            s -= 6  # raw dumps rank below curated notes
+        scored.append((s, f, a))
+    scored.sort(key=lambda x: (-x[0], x[1]))
+    return scored
+
+
+def search(settings, query, want, limit, raw, engine, rg, out):
+    t0 = time.perf_counter()
+    brain = Brain(settings)
+    terms = terms_of(query)
+    phrase = " ".join(terms)
+    roots = brain.search_roots(raw)
+    pattern = "|".join(term_re(t) for t in terms)
+    if engine == "rg":
+        files, hits = rg_engine(brain, roots, raw, pattern, rg)
+    else:
+        files, hits = python_engine(brain, roots, raw, pattern)
+    rows, _ = brain.load_router()
+    rh = router_hits(rows, terms, phrase, want)
+    withheld, res = 0, []
+    for s, f, a in rank(brain, files, hits, terms, raw, rh):
+        c = brain.channel(f)
+        if allowed(c, want):
+            res.append((f, a, c))
+        else:
+            withheld += 1
+    nr = min(3, limit, len(rh))
+    nf = max(limit - nr, 0)
+    dt = (time.perf_counter() - t0) * 1000
+    lines = ['sb "%s"%s: %d router + %d of %d file hits, %.0f ms, engine %s%s' % (
+        query, " --channel " + want if want else "", nr, min(nf, len(res)), len(res), dt, engine,
+        ", %d withheld by channel filter" % withheld if withheld else "")]
+    for _, r in rh[:nr]:
+        lines.append("R [%s] %s -> %s | %s" % (tag(r["ch"]), r["topic"], ", ".join(r["paths"]) or "-", r["desc"][:140]))
+    for i, (f, a, c) in enumerate(res[:nf], 1):
+        _, n, text = a["best"]
+        text = " ".join(clean(text).split())
+        if SECRET_RE.search(text):
+            text = "[line withheld: looks like a credential]"
+        loc = clean(f) + (":%d" % n if n else "")
+        lines.append("%d [%s] %s  %s" % (i, tag(c), loc, text[:160] if text else "(path match)"))
+    if not rh and not res:
+        lines.append("no hits: not in the second brain.")
+    out.write("\n".join(lines) + "\n")
+    return 0
+
+
+# ---------------------------------------------------------------- doctor
+
+WIKI_LINK_RE = re.compile(r"\[\[([^\]\[]+)\]\]")
+LINKS_LINE_RE = re.compile(r"^links\s*:\s*(.*)$")
+LIST_ITEM_RE = re.compile(r"^\s+-\s*(.*)$")
+
+EMAIL_HINT_RE = re.compile(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+")
+IBAN_HINT_RE = re.compile(r"(?<![\w-])[A-Z]{2}[0-9]{2}(?: ?[A-Z0-9]){11,30}(?![\w-])")
+PHONE_RUN_RE = re.compile(r"(?<![\w.:-])\+?[0-9][0-9 ().-]*[0-9](?![\w:])")
+DATE_RE = re.compile(r"\b(?:[0-9]{4}[-./][0-9]{1,2}[-./][0-9]{1,2}|[0-9]{1,2}[-./][0-9]{1,2}[-./][0-9]{2,4}"
+                     r"|(?:19|20)[0-9]{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12][0-9]|3[01]))\b")
+BIRTH_RE = re.compile(r"\b(?:born|dob|date of birth|birth ?date|birthday)\b", re.I)
+
+
+def link_targets(brain, rel, text):
+    """The link targets of a note: `links:` entries (a flow list or a block
+    list in the first lines) and every `[[target|label]]` / `[[target#anchor]]`
+    in the whole text; the label and the anchor are dropped."""
+    targets = []
+    head = brain.head(rel)
+    i = 0
+    while i < len(head):
+        m = LINKS_LINE_RE.match(head[i])
+        i += 1
+        if not m:
+            continue
+        rest = m.group(1).strip()
+        if rest.startswith("["):
+            flow = re.match(r"\[(.*)\]", rest)
+            targets.extend((flow.group(1) if flow else rest[1:]).split(","))
+            continue
+        if rest and not rest.startswith("#"):
+            targets.append(rest)
+            continue
+        while i < len(head) and LIST_ITEM_RE.match(head[i]):
+            targets.append(LIST_ITEM_RE.match(head[i]).group(1))
+            i += 1
+    targets.extend(WIKI_LINK_RE.findall(text))
+    out = []
+    for t in targets:
+        t = t.strip().strip("\"'").strip()
+        if t.startswith("[[") and t.endswith("]]"):
+            t = t[2:-2]
+        t = t.split("|", 1)[0].split("#", 1)[0].strip()
+        if t:
+            out.append(t)
+    return out
+
+
+def resolve_link(target, src_dir, note_set, stems):
+    """The note a link target names: a path from home, a path from the note's
+    folder (`.md` optional), or a unique file stem; None when unresolved."""
+    candidates = [_relnorm(target)]
+    if src_dir:
+        candidates.append(_relnorm(src_dir + "/" + target))
+    for c in candidates:
+        for variant in (c, c + ".md"):
+            if variant in note_set:
+                return variant
+    stem = target.rsplit("/", 1)[-1]
+    if stem.lower().endswith(".md"):
+        stem = stem[:-3]
+    hits = stems.get(fold(stem), ())
+    return hits[0] if len(hits) == 1 else None
+
+
+def personal_data_hint(line):
+    """True when a line looks like an email address, a phone number (9 to 15
+    digits with the usual separators, not a date), an IBAN, or a date next
+    to a birth keyword. A heuristic; the line itself is never reported."""
+    if EMAIL_HINT_RE.search(line) or IBAN_HINT_RE.search(line):
+        return True
+    if BIRTH_RE.search(line) and DATE_RE.search(line):
+        return True
+    for m in PHONE_RUN_RE.finditer(line):
+        run = m.group(0)
+        if DATE_RE.search(run):
+            continue
+        if 9 <= sum(1 for c in run if c.isdigit()) <= 15:
+            return True
+    return False
+
+
+def doctor(settings, out):
+    """Checks 1 to 9 (see the docstring); never spawns rg."""
+    brain = Brain(settings)
+    flags = settings["doctor"]
+    rows, found = brain.load_router()
+    notes = [f for f in brain.walk(brain.search_roots(False), False) if f.endswith(".md") and "/" in f]
+    note_set = set(notes)
+    stems = {}
+    for f in notes:
+        stems.setdefault(fold(f.rsplit("/", 1)[-1][:-3]), []).append(f)
+    findings = set()
+
+    def add(check, path, flag=None):
+        findings.add(("FAIL" if flag is None or flags[flag] else "WARN", check, path))
+
+    if not found:
+        add(1, settings["router_file"], "fail_on_missing_router_path")
+    for r in rows:
+        for p in r["paths"]:
+            if not os.path.lexists(os.path.join(brain.home, p)):
+                add(1, p, "fail_on_missing_router_path")
+        row_channel = [brain.by_fold.get(fold(c)) for c in r["ch"]]
+        row_channel = row_channel[0] if len(row_channel) == 1 else None
+        for p in r["paths"]:
+            if row_channel is None or brain.folder_channel(_relnorm(p)) != row_channel:
+                add(6, p)
+    for f in notes:
+        info = brain.channel_info(f)
+        tags = info["tags"] or set()
+        chans = info["explicit"] | tags
+        if not info["line"] and not info["labelled"] and not tags:
+            add(2, f, "fail_on_untagged")
+        if len(chans) > 1:
+            add(3, f, "fail_on_multiple_channels")
+        if len(chans) == 1 and brain.folder_channel(f) not in chans:
+            add(4, f, "fail_on_folder_mismatch")
+        if info["unknown"]:
+            add(9, f)
+        data = _read_text_file(os.path.join(brain.home, f))
+        if data is None:
+            continue
+        text = data.decode("utf-8", "ignore")
+        src_dir = f.rsplit("/", 1)[0]
+        for target in link_targets(brain, f, text):
+            linked = resolve_link(target, src_dir, note_set, stems)
+            if linked is None or linked == f:
+                continue
+            other = brain.doctor_channels(linked)
+            if chans and other and not other <= chans:
+                add(5, f, "fail_on_cross_channel_link")
+        if any(personal_data_hint(line) for line in text.splitlines()):
+            findings.add(("WARN", 8, f))
+    covered = [_relnorm(p) for r in rows for p in r["paths"]]
+    for folder in sorted(set(f.rsplit("/", 1)[0] for f in notes)):
+        if not _under(folder, covered):
+            findings.add(("WARN", 7, folder + "/"))
+    ordered = sorted(findings, key=lambda x: (x[1], x[2], x[0]))
+    fails = [x for x in ordered if x[0] == "FAIL"]
+    lines = ["%s %d %s" % (level, check, clean(path)) for level, check, path in ordered]
+    lines.append("sb doctor: %d notes, %d router rows, %d failures, %d warnings" % (
+        len(notes), len(rows), len(fails), len(ordered) - len(fails)))
+    out.write("\n".join(lines) + "\n")
+    if any(check != 1 for _, check, _ in fails):
+        return 3
+    return 1 if fails else 0
+
+
+# ---------------------------------------------------------------- command line
+
+def usage(settings):
+    return "\n".join([
+        "sb: fast, channel-aware search over your second brain (read-only).",
+        "",
+        "usage: sb <query...> [--channel %s] [--limit N] [--raw]" % "|".join(settings["channels"]),
+        "                     [--engine auto|rg|python] [--config PATH]",
+        "       sb --doctor [--config PATH]   # health check of the notes and the router",
+        "       sb --init-key                 # create the scan key for name_hashes, once",
+        "       sb --hash-name < words.txt    # the name_hashes key of each word (one per line)",
+        "       sb --help",
+        "",
+        "Ranks router rows first (at most 3), then file hits: path:line, the best",
+        "matching line and the note's channel (\"?\" = none). --channel X is strict:",
+        "only notes of exactly channel X; untagged and mixed notes are withheld",
+        "(the count is printed). Never reads dot files, *.env, *secret*, *token* or",
+        "*credential* files and withholds lines that look like credentials. Raw",
+        "notes only with --raw. --engine: auto (rg if installed, else python), rg",
+        "or python; $SB_ENGINE sets the default.",
+        "",
+        "config: %s" % (settings["config_path"] or "none (built-in defaults)"),
+        "home:   %s" % settings["home"],
+        "",
+    ])
+
+
+def parse_argv(argv):
+    opts = {"want": None, "limit": DEFAULT_LIMIT, "raw": False, "doctor": False, "help": False,
+            "engine": None, "config": None, "query": [], "key_command": None, "flags": set()}
+    it = iter(argv)
+
+    def value(flag, inline):
+        if inline is not None:
+            return inline
+        v = next(it, None)
+        if v is None:
+            raise UsageError("sb: %s needs a value" % flag)
+        return v
+
+    only_query = False
+    for a in it:
+        if only_query or not a.startswith("-") or a == "-":
+            opts["query"].append(a)
+            continue
+        if a == "--":
+            only_query = True
+            continue
+        flag, eq, inline = a.partition("=")
+        inline = inline if eq else None
+        opts["flags"].add(flag)
+        if flag in ("-c", "--channel"):
+            opts["want"] = next(it, "") if inline is None else inline
+        elif flag in ("-n", "--limit"):
+            v = value(flag, inline)
+            if not re.fullmatch(r"[0-9]+", v) or int(v) < 1:
+                raise UsageError("sb: --limit must be a whole number of at least 1")
+            opts["limit"] = int(v)
+        elif flag == "--engine":
+            opts["engine"] = value(flag, inline)
+        elif flag == "--config":
+            opts["config"] = value(flag, inline)
+        elif a == "--raw":
+            opts["raw"] = True
+        elif a == "--doctor":
+            opts["doctor"] = True
+        elif a in ("-h", "--help"):
+            opts["help"] = True
+        elif a in ("--init-key", "--hash-name"):
+            opts["key_command"] = a
+        else:
+            raise UsageError("sb: unknown option (see sb --help)")
+    if opts["key_command"] and (opts["query"] or opts["flags"] - {opts["key_command"], "--config"}):
+        raise UsageError("sb: %s takes no other arguments" % opts["key_command"])
+    return opts
+
+
+def key_command(command, environ, out):
+    """--init-key or --hash-name (words on stdin); neither reads the config."""
+    if command == "--init-key":
+        path = init_scan_key(environ)
+        out.write("sb: created the scan key %s (%d random bytes, mode 0600, never printed); keep it out of "
+                  "every repo and backup\n" % (path, KEY_BYTES))
+        return 0
+    key = read_scan_key(environ)
+    try:
+        text = sys.stdin.buffer.read().decode("utf-8")
+    except UnicodeDecodeError:
+        raise UsageError("sb: --hash-name reads UTF-8 text on stdin")
+    hashes = hash_names(key, text)
+    if hashes:
+        out.write("\n".join(hashes) + "\n")
+    return 0
+
+
+def main(argv=None, environ=None):
+    argv = sys.argv[1:] if argv is None else argv
+    environ = os.environ if environ is None else environ
+    out = sys.stdout
+    try:
+        opts = parse_argv(argv)
+        if opts["key_command"]:
+            return key_command(opts["key_command"], environ, out)
+        settings = load_settings(opts["config"], environ)
+    except UsageError as exc:
+        print(str(exc), file=sys.stderr)
+        return 2
+    except ConfigError as exc:
+        print("sb: config error: %s" % exc, file=sys.stderr)
+        return 2
+    except ScanKeyError as exc:
+        print("sb: %s" % exc, file=sys.stderr)
+        return 2
+    if opts["help"]:
+        out.write(usage(settings))
+        return 0
+    if settings["name_hashes"]:
+        try:
+            settings["name_key"] = read_scan_key(environ)
+        except ScanKeyError as exc:
+            print("sb: %s" % exc, file=sys.stderr)
+            return 2
+    if opts["doctor"]:
+        return doctor(settings, out)
+    want = opts["want"]
+    if want is not None and want not in settings["channels"]:
+        print("sb: --channel must be one of: %s" % ", ".join(settings["channels"]), file=sys.stderr)
+        return 2
+    query = " ".join(opts["query"])
+    if not terms_of(query):
+        print("sb: no query terms (see sb --help)", file=sys.stderr)
+        return 2
+    try:
+        engine, rg = pick_engine(opts["engine"], environ)
+        return search(settings, query, want, opts["limit"], opts["raw"], engine, rg, out)
+    except (UsageError, EngineError) as exc:
+        print(str(exc), file=sys.stderr)
+        return 2
+
+
+if __name__ == "__main__":
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(errors="replace")
+    try:
+        sys.exit(main())
+    except BrokenPipeError:
+        pass

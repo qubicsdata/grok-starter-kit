@@ -1,0 +1,23 @@
+{
+  "name": "frontend-companion",
+  "version": "1.0.0",
+  "description": "Front-end engineering quality \u2014 component architecture, client state, accessibility, and performance \u2014 plus JS/TS/CSS language depth for browser UI codebases.",
+  "category": "development",
+  "author": {
+    "name": "<your-name>",
+    "email": "you@example.com"
+  },
+  "keywords": [
+    "frontend",
+    "javascript",
+    "typescript",
+    "accessibility",
+    "wcag",
+    "react",
+    "performance",
+    "bundle"
+  ],
+  "requires": [
+    "ai-baseline"
+  ]
+}

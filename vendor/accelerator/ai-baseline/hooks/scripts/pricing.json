@@ -1,0 +1,16 @@
+{
+  "about": "Hook-side model pricing (accelerator.pricing_table_file): the ai-baseline budget feed costs each audit record with these rates. Edit the rates here, then run python3 tools/sync-shipped-hooks.py so ai-baseline/hooks/scripts/pricing.json stays byte-identical. Keep cost-monitor/skills/pricing-table.md in step.",
+  "unit": "usd_per_token",
+  "models": {
+    "claude-opus-4-8": {"input": 0.000015, "output": 0.000075},
+    "claude-opus-4-7": {"input": 0.000015, "output": 0.000075},
+    "claude-sonnet-4-6": {"input": 0.000003, "output": 0.000015},
+    "claude-haiku-4-5-20251001": {"input": 0.00000025, "output": 0.00000125}
+  },
+  "tiers": {
+    "opus": "claude-opus-4-8",
+    "sonnet": "claude-sonnet-4-6",
+    "haiku": "claude-haiku-4-5-20251001"
+  },
+  "default": "claude-sonnet-4-6"
+}

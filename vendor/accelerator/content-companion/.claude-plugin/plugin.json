@@ -1,0 +1,22 @@
+{
+  "name": "content-companion",
+  "version": "1.0.0",
+  "description": "Human-sounding content pipeline \u2014 draft, lint, and review docs, READMEs, blog posts, release prose, and marketing copy with an explicit anti-AI-tell discipline.",
+  "category": "development",
+  "author": {
+    "name": "<your-name>",
+    "email": "you@example.com"
+  },
+  "keywords": [
+    "content",
+    "writing",
+    "humanizer",
+    "linter",
+    "anti-ai-tell",
+    "voice",
+    "documentation"
+  ],
+  "requires": [
+    "ai-baseline"
+  ]
+}

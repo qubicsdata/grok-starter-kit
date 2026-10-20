@@ -1,0 +1,6 @@
+synthetic: true
+skills:
+  - {name: sb-lookup, purpose: "searches my notes"}
+expect:
+  proposals: [{type: extend, skill: sb-lookup}, {type: add, skill: sb-lookup-kit}]
+  unchanged: [skills/sb-lookup]

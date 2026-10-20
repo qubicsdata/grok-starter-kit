@@ -1,0 +1,26 @@
+{
+  "name": "qa-companion",
+  "version": "0.1.0",
+  "schema_version": "1",
+  "description": "Test and QA strategy companion — advisory layer above individual test authorship covering test shape selection, coverage analysis, flakiness triage, suite auditing, contract testing guidance, and mutation testing. Advisory only; never generates test code.",
+  "category": "development",
+  "author": {
+    "name": "<your-name>",
+    "email": "you@example.com"
+  },
+  "readme": "README.md",
+  "requires": [
+    "ai-baseline"
+  ],
+  "keywords": [
+    "testing",
+    "qa",
+    "test-strategy",
+    "coverage",
+    "flakiness",
+    "mutation-testing",
+    "contract-testing",
+    "test-pyramid",
+    "suite-audit"
+  ]
+}

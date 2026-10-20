@@ -1,0 +1,21 @@
+{
+  "name": "uiux-companion",
+  "version": "1.0.0",
+  "description": "UI/UX design quality companion \u2014 usability heuristics, design-system consistency, and visual hierarchy evaluated from spec and flow descriptions.",
+  "category": "development",
+  "author": {
+    "name": "<your-name>",
+    "email": "you@example.com"
+  },
+  "keywords": [
+    "ux",
+    "ui",
+    "design-system",
+    "heuristics",
+    "visual-hierarchy",
+    "design-review"
+  ],
+  "requires": [
+    "ai-baseline"
+  ]
+}

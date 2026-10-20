@@ -1,0 +1,12 @@
+   Usage (synthetic fresh-window example)
+
+   Current session
+                                                      0% used
+
+   Current week (all models)
+   ████████████████████████████████████████▌          81% used
+   Resets Oct 16, 5:59pm (Etc/GMT-3)
+
+   Current week (Fable)
+                                                      0% used
+   Resets Oct 16, 6pm (Etc/GMT-3)

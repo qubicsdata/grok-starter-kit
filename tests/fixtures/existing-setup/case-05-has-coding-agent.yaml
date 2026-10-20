@@ -1,0 +1,7 @@
+synthetic: true
+agents:
+  - {name: example-coder, role: "fixes the school website", skills: [example-site-fix]}
+expect:
+  agents_created_before_ok: 0
+  proposals: [{type: extend, agent: example-coder, add_skills: [pr-review, repo-health-check], add_routines: [dev-lead-sizing]}, {type: create, agent: dev-lead}]
+  unchanged: [agents/example-coder]
