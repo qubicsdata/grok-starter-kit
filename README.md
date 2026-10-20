@@ -2,6 +2,8 @@
 
 A self-contained kit that your Grok Bot layers onto your existing setup: a second brain with channel isolation, a marketing starter, three skills, a morning-brief routine, an optional dev-lead agent, an optional Claude Code queue runner, a Claude Code plugin suite and a local planning UI.
 
+**Grok Bot: start with `START-HERE-FOR-YOUR-GROK.md`.**
+
 **Integrate, don't replace.** Start with `AGENTS.md`: phase 1 is a read-only look at what you already have. Nothing of yours is overwritten, renamed or deleted without your OK.
 
 | Path | What |
