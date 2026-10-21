@@ -161,6 +161,25 @@ class ScanResult:
         return self.stdout + "\n" + self.stderr
 
 
+ALIAS_LIST_HINT = "ops-" + "aliases"  # the owner's alias list; no scan or test may read it
+
+
+def alias_variables(env):
+    """Names of variables in env that could point a checker at an alias list."""
+    return [name for name in env if "ALIAS" in name.upper()]
+
+
+def alias_guard(case):
+    """Fail when the scanner under test names the owner's alias list.
+
+    The scanner's ALIAS rule reads no alias list (its prefixes are assembled
+    from fragments), and run_scan() never hands it an alias variable.
+    """
+    with open(CLEAN_SCAN, encoding="utf-8", errors="replace") as handle:
+        if ALIAS_LIST_HINT in handle.read().lower():
+            case.fail("the scanner under test would read the owner's alias list")
+
+
 def run_scan(*args, cwd=None, home=None, timeout=120, env_extra=None):
     """Run the scanner as a subprocess with a clean environment (plus env_extra)."""
     own_home = home is None
@@ -168,6 +187,10 @@ def run_scan(*args, cwd=None, home=None, timeout=120, env_extra=None):
         home = tempfile.mkdtemp(prefix="kitscan-home-")
     env = clean_env(home)
     env.update(env_extra or {})
+    if alias_variables(env):
+        if own_home:
+            shutil.rmtree(home, ignore_errors=True)
+        raise RuntimeError("an alias variable would reach the scanner; tests use synthetic fixtures only")
     try:
         proc = subprocess.run(
             [sys.executable, CLEAN_SCAN, *args],

@@ -13,6 +13,13 @@
 # copy is never committed either.
 scan.key
 
+# Your private business profile (AGENTS.md checkpoint 3b) never goes into git
+# or a public fork: no private/ folder and no business-profile*.yaml anywhere.
+# `python3 tools/business_profile.py check` refuses a commit that holds one.
+private/
+business-profile*.yaml
+business-profile*.yml
+
 # Python caches.
 __pycache__/
 *.pyc

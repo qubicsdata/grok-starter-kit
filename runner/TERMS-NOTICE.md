@@ -1,4 +1,4 @@
-# Terms notice (requires legal confirmation)
+# Terms notice (Not legal advice: read Anthropic's terms before enabling)
 
 This runner automates the Claude Code CLI. Use it only:
 - with **your own** Claude login, on **your own** box;

@@ -9,6 +9,7 @@ Helper scripts for checking the kit. Stdlib-only Python 3.9+; nothing to install
 | `mutation_check.py` | dev check: disables one scanner rule at a time (in a copy) and confirms its canary test goes red |
 | `kit_plan.py` | the reference planner behind every `AGENTS.md` checkpoint: `--dry-run` proposes (text, or `--json`), `--apply --approved <sha256>` adds only what is missing, `--choose <group>=<item>` picks one option of a decision; contract in `KIT-PLAN-SPEC.md`, harness in `tests/overwrite/` |
 | `verify_pins.py` | checks `pins.json` (the pinned versions and checksums of `EXTERNAL-DEPENDENCIES.md`) and a downloaded file against its pin; downloads nothing |
+| `business_profile.py` | the private business profile of `AGENTS.md` checkpoint 3b: `draft` (from pages saved from your own site; local files only), `fill` (a template's double-brace keys from the profile) and `check` (the refuse-to-commit check, also as a pre-commit hook); writes nothing |
 
 ## `ci_local.py`: the local CI entry point
 
@@ -93,6 +94,7 @@ Counts owner-data findings in one or more folders and prints codes and counts on
 ```
 python3 tools/clean_scan.py <folder> [<folder> ...]
 python3 tools/clean_scan.py . --terms-file /path/outside/the/kit/terms.tsv
+python3 tools/clean_scan.py . --client-terms-file /path/outside/the/kit/client-terms.tsv
 python3 tools/clean_scan.py . --history --allowed-identity "Example Org <kit@example.com>"
 python3 tools/clean_scan.py . --gitleaks /path/to/gitleaks --trufflehog /path/to/trufflehog
 ```
@@ -105,7 +107,7 @@ Standard output holds only these line shapes:
 |---|---|
 | `<CODE> <n>` | a finding code with a non-zero count (codes below); counts are matches, BIDI and CTRL count decoded characters |
 | `BINARY <n>` | image files known by their magic bytes (PNG, JPEG, GIF87a/GIF89a, WebP) that were not content-scanned; their names were still checked. Not a finding and not part of `TOTAL`; the file name or extension never makes a file an image, and there is no allow-list |
-| `SKIP <what>` | a check that did not run: `gitleaks`, `trufflehog`, `terms` (no `--terms-file`), `binary` (a file with a NUL byte and no known image magic was not content-scanned; its name was still checked) |
+| `SKIP <what>` | a check that did not run: `gitleaks`, `trufflehog`, `terms` (neither `--terms-file` nor `--client-terms-file`), `binary` (a file with a NUL byte and no known image magic was not content-scanned; its name was still checked) |
 | `TOTAL <n>` | the sum of every finding code line, always last |
 
 Never printed, on any exit path, on stdout or stderr: matched text, file names, paths, line numbers, commit shas, the term list, the allowed identity, scanner output. Error messages are generic (for example `clean_scan: the term list lies inside a scanned folder`). An unexpected internal error prints only the exception type. Finding where a hit lives is a deliberate extra step: scan sub-folders, or load the module and look at counts per file yourself.
@@ -114,20 +116,23 @@ Never printed, on any exit path, on stdout or stderr: matched text, file names, 
 |---|---|
 | 0 | `TOTAL 0` |
 | 1 | findings |
-| 2 | usage error: no folder, a folder or file that cannot be read, a term list that is missing, malformed or inside a scanned folder, `--history` outside a git repo or without `--allowed-identity`, a malformed identity, a scanner binary missing or failing, git missing when history or a scanner needs it. No count line is printed. |
+| 2 | usage error: no folder, a folder or file that cannot be read, a term list that is missing, malformed or inside a scanned folder, `--history` outside a git repo or without `--allowed-identity`, a malformed identity, a scanner binary missing or failing, a gitleaks config or ignore file at the top of the repo when `--gitleaks` is given, git missing when history or a scanner needs it. No count line is printed. |
 
 ### Flags
 
 | Flag | Effect |
 |---|---|
 | `FOLDER ...` | one or more folders; findings are added up |
-| `--terms-file PATH` | external term list (format below); refused with exit 2 if it lies inside a scanned folder, also through a symlink |
+| `--terms-file PATH` | external owner term list (format below); refused with exit 2 if it lies inside a scanned folder, also through a symlink |
+| `--client-terms-file PATH` | external client/employer term list, same format, strict and allow-free (below); refused like `--terms-file`. Both lists may be given together; their hits add up under `TERMS` |
 | `--history` | also scan every object reachable from any ref of the repo that holds each folder: blobs under their tree codes, tree entry names under the path rules, messages under `MSG`, headers under `HDR`; needs `--allowed-identity` |
 | `--allowed-identity "Name <email>"` | the only author/committer/tagger allowed in history headers; command line only, never read from a file |
 | `--gitleaks PATH` | run this gitleaks binary over the full history (`git --log-opts=--all --redact`, JSON report in a temp folder) and count its findings under `GITLEAKS` |
 | `--trufflehog PATH` | run this trufflehog binary over the full history (`git --no-verification --no-update --json --fail`) and count its result lines under `TRUFFLEHOG` |
 
 Scanner binaries run with a fixed argv list, never a shell, with a temporary `HOME` and without any `GITLEAKS_*` or `TRUFFLEHOG_*` environment variable (one could hand the tool its own config or allowlist); their own output is discarded. An unexpected exit code, or a result that does not match the exit code, fails closed with exit 2. Absent binaries give `SKIP gitleaks` / `SKIP trufflehog`.
+
+gitleaks reads a config (`.gitleaks.toml`) and an ignore file (`.gitleaksignore`) from the folder it scans, whether git tracks, ignores or does not know them, and an allow-all config there would turn its findings into a silent `0`. So with `--gitleaks`, either file at the top of the repo (any case) fails closed with exit 2 before gitleaks runs; remove it, or scan a fresh copy, then scan again.
 
 ### Rules and codes
 
@@ -145,7 +150,7 @@ Scanner binaries run with a fixed argv list, never a shell, with a temporary `HO
 | `CAPTURE` | real-capture markers: a file name matching `*_real_*`; inside a `/usage`-style screen (a `/usage` line or a `NN% used` line), an `Email`, `Org`, `Organization` or `Plan` field whose value is not an example address or does not start with `Example`, and a status header whose plan segment does not start with `Example`. Those fields are ignored in any other text. |
 | `SUPERPOWERS` | any path under the dot-superpowers folder, as a tree entry or mentioned in a file |
 | `STRUCT` | `.gitmodules`; a gitlink entry (mode 160000) in the index or, with `--history`, in any historical tree; a nested `.git` directory or file. The scanned root's own `.git` is skipped and never read. |
-| `TERMS` | hits of the external term list, in file contents and in path names |
+| `TERMS` | hits of the external term lists (owner and client/employer), in file contents and in path names |
 | `HDR` | `--history`: an author, committer or tagger header that is not exactly the `--allowed-identity` string; one per header |
 | `MSG` | `--history`: any rule above or a term hitting a commit or tag message, trailers included |
 | `GITLEAKS` / `TRUFFLEHOG` | findings of the respective scanner over the full history |
@@ -154,7 +159,7 @@ Path names: every file and directory name is checked once by the text rules, the
 
 ### Term list format
 
-One term per line, with optional flags after a TAB; `#` comments and blank lines are ignored; the file must lie outside every scanned folder.
+One term per line, with optional flags after a TAB; `#` comments and blank lines are ignored; the file must lie outside every scanned folder. Both lists use this format. The list a term comes from sets its class: every term of `--terms-file` is an owner term, every term of `--client-terms-file` a client/employer term. There is no per-line class flag.
 
 ```
 Example Holdings
@@ -163,11 +168,15 @@ Example Org	allow=NOTICE,*/NOTICE
 Examplewood	cs allow=docs/*.md
 ```
 
+Owner list (`--terms-file`):
+
 | Flags | Match |
 |---|---|
 | none | case-insensitive substring, matched literally (not a regex); a term of exactly 4 characters is matched as `cs` instead, since as a substring it hits ordinary words |
 | `cs` | case-sensitive whole word; letters and digits are word characters, hyphens and underscores are boundaries |
 | `allow=<glob>[,<glob>]` | relative paths (fnmatch, relative to the scanned folder) where the term is allowed; a folder also matches with a trailing slash, so `allow=docs/*` covers the folder `docs` and everything in it. With `--history`, paths of historical objects are relative to the repo root. |
+
+Client/employer list (`--client-terms-file`): strict and allow-free. `allow=` and `cs` are accepted and ignored: the hit still counts wherever it is, and any other flag is a usage error. Every term, whatever its length, uses the same matcher, with no short-term relaxation: a case-insensitive substring match that is separator-aware. A separator in the term (whitespace, `-`, `_`, `.`, `/`, `+`) matches any run of separators or none, and one separator may sit between any two other characters, so `Example Holdings` also hits `exampleholdings` and `Example-Holdings`, and a 3-character term also hits inside a longer word or split by a hyphen.
 
 ### The scanner is scanned too
 
@@ -179,7 +188,7 @@ Examplewood	cs allow=docs/*.md
 python3 -m unittest discover -s tests/scan -p 'test_*.py'
 ```
 
-One planted canary per rule, negatives for the allowed shapes, output hygiene (nothing but code, SKIP and TOTAL lines; no planted value or path anywhere in stdout or stderr), binary and encoding edge cases, the term list and its `allow=` globs, history mode on a temp repo with a synthetic identity, and fake gitleaks/trufflehog binaries that record their argv and the environment they get. `KIT_CLEAN_SCAN=<path>` points the suite at another copy of the scanner.
+One planted canary per rule, negatives for the allowed shapes, output hygiene (nothing but code, SKIP and TOTAL lines; no planted value or path anywhere in stdout or stderr), binary and encoding edge cases, the term list and its `allow=` globs, the strict client/employer list next to the unchanged owner list (`test_client_terms.py`), history mode on a temp repo with a synthetic identity, fake gitleaks/trufflehog binaries that record their argv and the environment they get, and a fake gitleaks that honours a config at the repo top (`test_gitleaks_config.py`). `KIT_CLEAN_SCAN=<path>` points the suite at another copy of the scanner.
 
 ## `mutation_check.py`: every rule has a canary
 
@@ -220,3 +229,21 @@ With a pin name and a file it prints `OK <pin> <version> <platform>: <algo> matc
 | a missing key, a duplicate name, a non-`https` url, `required` not a boolean | `ERROR` | `ERROR` |
 
 Tests: `python3 -m unittest tests.test_verify_pins` (synthetic artifacts built at test time, plus checks that the shipped `pins.json` has no placeholder on a required pin and that every checksum in `EXTERNAL-DEPENDENCIES.md` equals the one in `pins.json`). `KIT_VERIFY_PINS=<path>` points the suite at another copy of the script.
+
+## `business_profile.py`: the private business profile
+
+```
+python3 tools/business_profile.py draft [--channel NAME] <saved-site-folder>
+python3 tools/business_profile.py fill --profile <profile> <template>
+python3 tools/business_profile.py check [--repo <folder>] [--all]
+```
+
+The profile (`<channel>/private/business-profile.yaml` in your second brain, keys in `second-brain/BUSINESS-PROFILE.md`) never goes into git. `draft` reads `*.html` / `*.htm` pages you saved from your own site (local files only; a URL is refused) and prints a profile from their schema.org JSON-LD and `og:site_name`, `unknown` for the rest. `fill` prints a template with its double-brace keys filled; a missing or `unknown` key stays and is named on stderr. `check` fails when the staged changes (`--all`: the tracked files) hold a file in a `private/` folder, a `business-profile*.yaml` file or any file with the profile's marker line; it prints paths, never contents. None of them writes a file or opens a network connection.
+
+| Exit code | Meaning |
+|---|---|
+| 0 | fine |
+| 1 | `fill`: a key is missing or `unknown`; `check`: a file is refused |
+| 2 | usage error: unreadable or malformed input (the line number, never the line), a URL where a local path is needed, not a git repository |
+
+Tests: `tests/test_profile_draft.py` (a synthetic saved site in a temp dir), `tests/test_profile_fill.py` (with the shipped templates and the key table) and `tests/test_profile_guard.py` (synthetic temp repos, the pre-commit hook, the kit's `.gitignore`). `KIT_BUSINESS_PROFILE=<path>` points them at another copy of the script.

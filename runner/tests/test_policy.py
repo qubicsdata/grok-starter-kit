@@ -644,6 +644,11 @@ class TermsNoticeTests(unittest.TestCase):
         self.assertIn("anthropic.com/legal", text)
         self.assertIn("requires legal confirmation", text)
 
+    def test_notice_header_says_not_legal_advice(self):
+        first = read(self.NOTICE).splitlines()[0]
+        self.assertEqual(first, "# Terms notice (Not legal advice: read Anthropic's terms before enabling)")
+        self.assertNotIn("requires legal confirmation", first)
+
     def test_design_links_the_notice(self):
         head = "\n".join(read(os.path.join(RUNNER_DIR, "DESIGN.md")).splitlines()[:5])
         self.assertIn("TERMS-NOTICE.md", head)

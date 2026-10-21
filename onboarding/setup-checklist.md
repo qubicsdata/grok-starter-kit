@@ -24,25 +24,29 @@ Every phase after the first starts from that note, and every proposal is compute
 - new agents, skills and routines get names that do not collide with yours, or they extend yours;
 - memory and routines are merged, never replaced;
 - no deletes or renames of your things without your explicit OK;
-- routines and the runner are created off and enabled only with a separate OK (checkpoints 5b, 8b, 9b).
+- routines and the runner are created off and enabled only with a separate OK (checkpoints 5b, 8b, 9b);
+- your private business profile is built only with your OK (checkpoint 3b) and never goes into git.
 
 ### Your first prompts (messages to your Grok Bot)
 1. **Config (phase 2).**
    > Fill `kit.config.yaml` from `kit.config.example.yaml` and my current-state note: my channels, my timezone, my existing notes folder and the names already taken. Show me the whole file before you save it.
 2. **Second brain (phase 3).**
    > Set up my second brain at `${HOME}/second-brain` (or in my existing notes folder if the discovery note found one) with channels `dance-school` and `other-activities`, using the kit's `second-brain/` template. Add only the folders I don't have yet, link my existing campaigns and posts from `dance-school/marketing/` instead of copying them, and run `sb --doctor`. Show me the plan first.
-3. **Search skill (phase 4).**
+3. **Private business profile (phase 3, checkpoint 3b, optional).**
+   > Build my private business profile from my own website <address> and my social accounts <list>: name, studios, styles, schedule, prices and channels. Public pages only, no logins, nothing posted. Show me the whole profile with "unknown" for anything you could not find, and save it to `dance-school/private/business-profile.yaml` in my second brain only after my OK. Make sure it never goes into git: add the ignore lines and run `python3 tools/business_profile.py check`.
+4. **Search skill (phase 4).**
    > Add the kit's `sb-lookup` skill so you search my second brain by channel before answering. If I already have a similar skill, propose extending it instead. Show me the skill first.
-4. **Morning brief (phase 5).**
+5. **Morning brief (phase 5).**
    > Create a morning-brief routine from `routines/morning-brief.md`: weekdays at 07:30 my time, reading my calendar, second-brain notes changed since yesterday, content due today or tomorrow and drafts waiting for my approval; stay quiet when nothing changed. If I already have a daily summary routine, merge these sections into it instead. Keep it off until I confirm.
-5. **This term's classes.**
-   > Set up this term's class schedule in `dance-school/classes-schedule/` from the template, with these classes: <list>. No student names.
-6. **Content and comms.**
-   > Draft a recital announcement and plan an Instagram content calendar for next month, linked to my existing campaign <name>. Then create a parent-comms template for term reminders and a monthly finance summary template (totals only). Drafts only; don't post or send anything.
+6. **This term's classes.**
+   > Set up this term's schedule per studio in `dance-school/classes-schedule/` from the template, with these groups: <list>. Instructors by role only, no student names.
+7. **Content and comms.**
+   > Plan a content calendar around the term cycle (autumn and January intakes, new-group launches, socials, festival, summer) and draft the posts for the next new-group launch from the templates, with values from my business profile. Then draft a parent update for the kids/teens groups and a separate update for the adult groups. Drafts only: I approve every post, and you don't post, schedule or send anything.
 
 ### Seeded starter folders (added only if missing)
-- `dance-school/classes-schedule/`, `dance-school/comms/` (templates only), `dance-school/events-recitals/`, `dance-school/marketing/` (campaigns, social, content calendar), `dance-school/finances/` (summaries only), `dance-school/admin/`
+- `dance-school/classes-schedule/` (per-studio term schedule, group cards, instructor roles), `dance-school/comms/` (templates only; parent and adult comms kept separate), `dance-school/events-recitals/` (social nights, festivals, workshops, shows), `dance-school/marketing/` (drafts only: campaigns, trial funnel, social templates, content calendar, targeting, metrics), `dance-school/finances/` (pass and price table, summaries only), `dance-school/admin/` (consent records, references only)
 - `other-activities/` (admin notes, marketing)
+- Never seeded: anything under a `private/` folder. Your business profile is written there only after checkpoint 3b.
 
 ### First-run config (your channels)
 ```yaml
@@ -75,10 +79,13 @@ Your Grok Bot fills the full file from `kit.config.example.yaml` and shows it to
 | any change to your things | your Grok Bot asks first, every time |
 
 ## Privacy (requires legal confirmation)
-- Your students are mostly minors. **The second brain holds no children's personal data**: no names, health information, photos or contact details. The same goes for prompts to Claude or your Grok Bot.
-- Keep the class roster and parent contacts in a **separate, secured system** (with access control and backups). Templates in `comms/` use placeholders only.
-- **Photos and social posts:** under GDPR Art. 8 and the rules on parental consent, posting images of children needs recorded consent from the parents. Check consent before any post that shows a child.
+- This covers adults and children: your students' names, health information, photos and contact details stay out of the second brain and out of prompts.
+- If you work with children (minors), **the second brain holds no children's personal data**: no names, health information, photos or contact details. The same goes for prompts to Claude or your Grok Bot.
+- Keep the class roster and parent contacts in a **separate, secured system** (with access control and backups). Templates in `comms/` use placeholders only, and parent (kids/teens) and adult communications are kept separate.
+- **Photos and social posts:** no names or faces of minors by default. Under GDPR Art. 8 and the rules on parental consent, showing a child needs the guardian's written consent for that use, kept as a separate consent record (`dance-school/admin/consent-record-template.md`, references only) and checked before every post. Adults give consent for each use too, and anyone can withdraw it.
 - Children's data is a special risk under GDPR (Recital 38). A **DPIA** (data protection impact assessment) may be needed for how you handle it.
+- **Marketing is drafts only:** a human approves every post; the kit does no auto-posting or scheduling and holds no tokens or API keys. Check each platform's current terms before posting.
+- **Your business profile** (checkpoint 3b) holds business facts only, never students' data. It lives in `private/` in your second brain and never goes into git or a public fork.
 - Anything you send to Claude is processed by Anthropic. Check your plan's data-use and privacy settings. The same applies to your Grok Bot's provider.
 - Keep backups **encrypted**.
 - This section is guidance, not legal advice: **requires legal confirmation.**

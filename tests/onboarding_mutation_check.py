@@ -67,7 +67,7 @@ MUTANTS = [
     ("file-key-not-excused", replace_once(AGENTS, "`kit.collision_suffix` is applied", "`kit.collision.suffix` is applied")),
     ("ripgrep-required", replace_once(AGENTS, "ripgrep is optional:", "ripgrep is required:")),
     ("ripgrep-prerequisite-box", replace_once(CHECKLIST, "- [ ] git.", "- [ ] ripgrep.\n- [ ] git.")),
-    ("privacy-dropped", replace_once(AGENTS, "mostly minors", "mostly adults")),
+    ("privacy-dropped", replace_once(AGENTS, "If you work with children (minors)", "If you teach adults")),
     ("parameters-row-removed", replace_once(PARAMETERS, "| `accelerator.enabled` |", "| `accelerator.plugins` |")),
     ("parameters-unknown-key", replace_once(PARAMETERS, "| `kit.home` (KIT_HOME) |", "| `kit.root` (KIT_HOME) |")),
     ("parameters-sibling-unknown", replace_once(PARAMETERS, "`kit.author_name` / `author_email`", "`kit.author_name` / `author_mail`")),

@@ -9,7 +9,7 @@ Every **CHECKPOINT** means: your Grok Bot shows you exactly what it will do and 
 - The proposal shown at each checkpoint is computed by the kit's reference planner: `python3 tools/kit_plan.py --dry-run`, run from the kit folder. It reads your `kit.config.yaml` and the current-state note and prints what the phase would add, extend, link or skip, writing nothing. Your Grok Bot shows you that output (or its own equivalent) at every checkpoint.
 - How your Grok Bot uses that plan: the dry run prints one `CHECKPOINT <id>` block per checkpoint below and ends with a `plan sha256` line (`--json` gives the same plan as one document). At a checkpoint it shows you the block of that checkpoint. Where one decision has two options (a skill name clash, an existing coding agent) both options carry the same choice group and you pick one. After your OK it runs `python3 tools/kit_plan.py --apply --approved <that sha256>` (plus `--choose <group>=<item id>` for a decision you made), which creates only the add and link items of that plan and only where nothing exists yet, refuses when the plan changed since you approved it or a target appeared in the meantime, and writes nothing in either case. Extensions, merges, enabling and everything else after an OK are done by your Grok Bot itself, within what the proposal showed. Details: `tools/KIT-PLAN-SPEC.md`.
 - Steps marked `After your OK` or `After OK <n>` are the only steps that write. They come after the checkpoint of their phase and do exactly what the checkpoint showed, nothing more.
-- Phases 7, 8 and 9 are optional. The runner (phase 9) and every routine stay off until a separate OK.
+- Phases 7, 8 and 9 and the private business profile (checkpoint 3b) are optional. The runner (phase 9) and every routine stay off until a separate OK.
 
 ## Prerequisites (checked, never installed without your OK)
 - Your own Claude account, signed in to Claude Code on your own box (`claude --version`). Never a shared login.
@@ -17,7 +17,7 @@ Every **CHECKPOINT** means: your Grok Bot shows you exactly what it will do and 
 - ripgrep is optional: `sb` uses `rg` only when it is already installed and gives the same results without it. The kit never installs ripgrep.
 - Versions and checksums: `EXTERNAL-DEPENDENCIES.md`. The full checklist, with the first prompts to send: `onboarding/setup-checklist.md`.
 
-Privacy, before anything is written: your students are mostly minors. The second brain and your prompts hold no children's personal data (no names, health information, photos or contact details); the roster lives in a separate, secured system. Details in the privacy section of `onboarding/setup-checklist.md` (requires legal confirmation).
+Privacy, before anything is written, for adults and children alike: personal data of your students stays out of the second brain and your prompts. If you work with children (minors), the second brain and your prompts hold no children's personal data (no names, health information, photos or contact details), the roster lives in a separate, secured system, and no post shows a minor's name or face unless a guardian's written consent is on record. Details in the privacy section of `onboarding/setup-checklist.md` (requires legal confirmation).
 
 ## Phase 1: discovery (read-only)
 - Read: `onboarding/discovery-prompt.md` and take its inventory of your agents, routines, skills, memory, channels, campaigns and folder conventions. Nothing is created, changed, sent or scheduled; credentials are never opened.
@@ -38,6 +38,11 @@ Privacy, before anything is written: your students are mostly minors. The second
 - Read: the privacy rules of `onboarding/setup-checklist.md`: templates only in `comms/`, no roster data, no photos of children without recorded consent.
 - **CHECKPOINT 3:** you approve the folder list and the links.
 - After your OK: create the missing folders and seed notes, write the link notes or `marketing_links` entries, run `sb --doctor` and fix kit files only.
+- Ask: whether you want a private business profile, and which of your own website and social accounts it may read. It is built only with your OK; without it the templates keep their placeholders.
+- Propose: the business profile (name, studios, styles, schedule, prices, channels) from your own website and social accounts: public pages only, never a login or a private message, nothing posted, followed or liked. Pages you saved give a first draft with `python3 tools/business_profile.py draft <folder>` (local files only). The whole profile is shown in chat with "unknown" for anything not found, never a guess; the planner lists checkpoint 3b with nothing to add.
+- Propose: its place, `<channel>/private/business-profile.yaml` in your second brain. The profile never goes into git or a public fork: the kit's `.gitignore` covers it, and `python3 tools/business_profile.py check` refuses any commit that holds it, also as the pre-commit hook of your notes repo if you want one. Keys and commands: `second-brain/BUSINESS-PROFILE.md`.
+- **CHECKPOINT 3b:** you approve the profile, its place and, if you want it, the pre-commit hook.
+- After OK 3b: write the profile to `<channel>/private/business-profile.yaml`, add the `private/` and `business-profile*.yaml` lines to the `.gitignore` of your notes repo if it is a git repo, install the pre-commit hook only if you chose it, and run `python3 tools/business_profile.py check`. From then on the templates read their values from the profile.
 
 ## Phase 4: skills
 - Propose: `sb-lookup`, `content-calendar-planner` and `comms-template-writer` from `grok-skills/` (names in `skills.sb_lookup`, `skills.content_calendar`, `skills.comms_template`), each marked add (you have nothing similar), extend (you have a similar skill: yours stays, the kit's steps are proposed as additions) or rename with `kit.collision_suffix` (the name is taken).

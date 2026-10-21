@@ -22,7 +22,7 @@ links: []
 | 1 | Example opening number | Beginners | 3 | <costume> |
 
 ## Tasks
-- [ ] Book venue · [ ] Ticketing · [ ] Volunteers (roles only) · [ ] Photo-consent check before any filming
+- [ ] Book venue · [ ] Ticketing · [ ] Volunteers (roles only) · [ ] Photo-consent check before any filming: no names or faces of minors without a guardian's written consent
 
 ## Announcement draft
 - see `../marketing/social/` for the post drafts

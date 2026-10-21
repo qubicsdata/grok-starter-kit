@@ -3,7 +3,8 @@
 
 Usage:
     python3 tools/clean_scan.py FOLDER [FOLDER ...]
-        [--terms-file PATH] [--history --allowed-identity "Name <email>"]
+        [--terms-file PATH] [--client-terms-file PATH]
+        [--history --allowed-identity "Name <email>"]
         [--gitleaks PATH] [--trufflehog PATH]
 
 Output (stdout): ONLY these line shapes, nothing else, ever:
@@ -14,7 +15,7 @@ Output (stdout): ONLY these line shapes, nothing else, ever:
                         GIF, WebP) that were not content-scanned; not a
                         finding, not part of TOTAL; absent when 0
     SKIP <what>         a check that did not run: gitleaks, trufflehog, terms
-                        (no --terms-file) and binary (a NUL-bearing file that
+                        (neither term list given) and binary (a NUL-bearing file that
                         is not a known image was not content-scanned; path
                         rules still apply)
     TOTAL <n>           sum of every finding code line; always the last line
@@ -22,9 +23,10 @@ No matched text, file name, path, line number or commit sha is printed, on
 stdout or stderr, on any exit path. Error messages are generic.
 
 Exit codes: 0 = TOTAL 0, 1 = findings, 2 = usage error (no folder, unreadable
-folder or file, --terms-file missing, malformed or inside a scanned tree,
+folder or file, a term list missing, malformed or inside a scanned tree,
 --history without a git repo or without --allowed-identity, malformed
---allowed-identity, a scanner binary missing or failing, git missing when
+--allowed-identity, a scanner binary missing or failing, a gitleaks config or
+ignore file at the repo top when --gitleaks is given, git missing when
 history or a scanner needs it). On exit 2 no count line is printed.
 
 Finding codes (tree mode; every object of every commit too with --history):
@@ -56,8 +58,8 @@ Finding codes (tree mode; every object of every commit too with --history):
     STRUCT      .gitmodules, a gitlink entry (mode 160000, in the index or
                 in any historical tree), a nested .git (dir or file); the
                 scanned root's own .git is skipped
-    TERMS       hits of the external term list (--terms-file), in file
-                contents and in path names
+    TERMS       hits of the external term lists (--terms-file,
+                --client-terms-file), in file contents and in path names
     HDR         --history: an author, committer or tagger header (one per
                 header) other than the exact --allowed-identity string
     MSG         --history: any rule above or a term hitting a commit or tag
@@ -75,14 +77,20 @@ WebP (RIFF, 4 size bytes, WEBP) image is counted under `BINARY <n>`; any other
 is reported as `SKIP binary`. The file name never decides, and there is no
 allow-list.
 
-Term list (--terms-file, refused with exit 2 if it lies inside a scanned
-tree): one `term<TAB>flags` per line, `#` comments and blank lines ignored,
-flags separated by whitespace. No flags = case-insensitive substring match.
+Term lists (each refused with exit 2 if it lies inside a scanned tree): one
+`term<TAB>flags` per line, `#` comments and blank lines ignored, flags
+separated by whitespace. The list a term comes from sets its class.
+Owner list (--terms-file): no flags = case-insensitive substring match.
 `cs` = case-sensitive whole word (letters and digits are word characters;
-hyphens and underscores are boundaries); a term of exactly 4 characters is
-always matched as `cs`. `allow=<glob>[,<glob>]` = relative
+hyphens and underscores are boundaries); an owner term of exactly 4
+characters is always matched as `cs`. `allow=<glob>[,<glob>]` = relative
 paths (fnmatch, relative to the scanned folder; a folder also matches with a
 trailing slash) where the term is allowed. Terms are matched literally.
+Client/employer list (--client-terms-file): strict and allow-free. `allow=`
+and `cs` are accepted and ignored (the hit still counts), and every term,
+whatever its length, is a case-insensitive substring match that is
+separator-aware: a separator (whitespace - _ . / +) in the term matches any
+run of them or none, and one may sit between any two other characters.
 
 History (--history): every object reachable from any ref of the git repo
 that holds the folder. Blobs count under their tree codes (once per distinct
@@ -94,7 +102,10 @@ the command line only, never from a file in the tree.
 Scanners (--gitleaks / --trufflehog PATH): run with a fixed argv list, never
 a shell, over the full history of the repo that holds each folder; absent ->
 `SKIP gitleaks` / `SKIP trufflehog`. An unexpected scanner exit code or an
-unreadable result fails closed with exit 2.
+unreadable result fails closed with exit 2. gitleaks reads a config or ignore
+file from the folder it scans, so a `.gitleaks.toml` or `.gitleaksignore` (any
+case; tracked, untracked or git-ignored) at the repo top fails closed with
+exit 2 before gitleaks runs.
 
 Stdlib only, Python 3.9+.
 """
@@ -135,6 +146,8 @@ WEBP_TAG = b"WEBP"
 SUBPROCESS_TIMEOUT = 1800
 GITLEAKS_FINDINGS_EXIT = 1
 TRUFFLEHOG_FINDINGS_EXIT = 183
+# Files gitleaks reads from the scanned folder (compared in lower case).
+GITLEAKS_CONFIG_NAMES = (".gitleaks.toml", ".gitleaksignore")
 
 
 class UsageError(Exception):
@@ -358,9 +371,41 @@ def is_image(data):
 
 # --- term list ---------------------------------------------------------------
 
-# A term of exactly this many characters is matched as if it carried `cs`:
-# as a case-insensitive substring it hits ordinary words.
+# An owner-list term of exactly this many characters is matched as if it
+# carried `cs`: as a case-insensitive substring it hits ordinary words. Client
+# and employer terms never get this relaxation.
 SHORT_TERM_LEN = 4
+# Separators a client/employer term may be split by in the text (`Ab Cd`,
+# `ab-cd`, `ab_cd`, `ab.cd`, `ab/cd`, `ab+cd`).
+TERM_SEP_CHARS = " \t-_./+"
+TERM_SEP_RUN = r"[\s\-_./+]*"
+TERM_SEP_ONE = r"[ \t\-_./+]?"
+
+
+def client_term_regex(term):
+    """Strict matcher for a client/employer term, the same for every length.
+
+    Case-insensitive substring; a separator run inside the term matches any
+    run of separators or none, and one optional separator may sit between
+    any two other characters, so a split or hyphenated spelling still hits.
+    """
+    parts = []
+    previous_sep = True
+    for ch in term:
+        if ch in TERM_SEP_CHARS or ch.isspace():
+            if not previous_sep:
+                parts.append(TERM_SEP_RUN)
+            previous_sep = True
+            continue
+        if parts and not previous_sep:
+            parts.append(TERM_SEP_ONE)
+        parts.append(re.escape(ch))
+        previous_sep = False
+    if parts and parts[-1] == TERM_SEP_RUN:
+        parts.pop()
+    if not parts:
+        raise UsageError("the term list has a malformed line")
+    return re.compile("".join(parts), re.IGNORECASE)
 
 
 class Term:
@@ -381,7 +426,9 @@ class Term:
         return False
 
 
-def load_terms(path):
+def load_terms(path, client=False):
+    """Terms of one list. `client` marks the client/employer list: its terms
+    ignore `allow=` and `cs` and all use client_term_regex()."""
     try:
         with open(path, "rb") as handle:
             raw = handle.read()
@@ -404,11 +451,13 @@ def load_terms(path):
                 allow.extend(g for g in flag[len("allow="):].split(",") if g)
             else:
                 raise UsageError("the term list has an unknown flag")
-        if case_sensitive or len(term) == SHORT_TERM_LEN:
+        if client:
+            regex = client_term_regex(term)
+        elif case_sensitive or len(term) == SHORT_TERM_LEN:
             regex = re.compile(r"(?<![A-Za-z0-9])" + re.escape(term) + r"(?![A-Za-z0-9])")
         else:
             regex = re.compile(re.escape(term), re.IGNORECASE)
-        terms.append(Term(regex, allow))
+        terms.append(Term(regex, [] if client else allow))
     return terms
 
 
@@ -445,6 +494,15 @@ def repo_hash_algorithm(top):
     code, out = _git(["rev-parse", "--show-object-format"], top)
     name = out.decode("ascii", "replace").strip() if code == 0 else ""
     return "sha256" if name == "sha256" else "sha1"
+
+
+def gitleaks_config_at(top):
+    """True when the repo top holds a gitleaks config or ignore file, in any case."""
+    try:
+        names = os.listdir(top)
+    except OSError:
+        raise UsageError("a folder could not be read")
+    return any(name.lower() in GITLEAKS_CONFIG_NAMES for name in names)
 
 
 def blob_id(data, algorithm):
@@ -720,6 +778,10 @@ class Scan:
         return proc.returncode, proc.stdout
 
     def run_gitleaks(self, binary, top):
+        # gitleaks reads its config and ignore file from the folder it scans,
+        # tracked, untracked or git-ignored: one there could zero GITLEAKS.
+        if gitleaks_config_at(top):
+            raise UsageError("a gitleaks config or ignore file sits at the top of the repo; remove it to scan")
         work = tempfile.mkdtemp(prefix="clean-scan-")
         try:
             report = os.path.join(work, "report.json")
@@ -790,11 +852,24 @@ def parse_args(argv):
     )
     parser.add_argument("folders", nargs="+", metavar="FOLDER", help="folder to scan")
     parser.add_argument("--terms-file", metavar="PATH", help="external term list (must lie outside every scanned folder)")
+    parser.add_argument("--client-terms-file", metavar="PATH",
+                        help="external client/employer term list: strict, allow= ignored (outside every scanned folder)")
     parser.add_argument("--history", action="store_true", help="also scan every object, message and header of the git history")
     parser.add_argument("--allowed-identity", metavar="IDENTITY", help='the only allowed author/committer, as "Name <email>"')
     parser.add_argument("--gitleaks", metavar="PATH", help="gitleaks binary to run over the history")
     parser.add_argument("--trufflehog", metavar="PATH", help="trufflehog binary to run over the history")
     return parser.parse_args(argv)
+
+
+def load_term_file(path, folders, client=False):
+    terms_real = os.path.realpath(path)
+    if not os.path.isfile(terms_real):
+        raise UsageError("the term list does not exist")
+    for folder in folders:
+        real = os.path.realpath(folder)
+        if terms_real == real or terms_real.startswith(real.rstrip(os.sep) + os.sep):
+            raise UsageError("the term list lies inside a scanned folder; keep it outside the kit")
+    return load_terms(terms_real, client=client)
 
 
 def prepare(args):
@@ -811,14 +886,9 @@ def prepare(args):
         raise UsageError("--history needs --allowed-identity")
     terms = None
     if args.terms_file is not None:
-        terms_real = os.path.realpath(args.terms_file)
-        if not os.path.isfile(terms_real):
-            raise UsageError("the term list does not exist")
-        for folder in folders:
-            real = os.path.realpath(folder)
-            if terms_real == real or terms_real.startswith(real.rstrip(os.sep) + os.sep):
-                raise UsageError("the term list lies inside a scanned folder; keep it outside the kit")
-        terms = load_terms(terms_real)
+        terms = load_term_file(args.terms_file, folders)
+    if args.client_terms_file is not None:
+        terms = (terms or []) + load_term_file(args.client_terms_file, folders, client=True)
     tools = {}
     for name in ("gitleaks", "trufflehog"):
         path = getattr(args, name)

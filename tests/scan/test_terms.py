@@ -116,7 +116,7 @@ class TermFileTest(support.ScanTestCase):
 
 
 class ShortTermTest(support.ScanTestCase):
-    """A 4-character term is case-sensitive and whole-word even without the cs flag."""
+    """An owner-list term of exactly 4 characters is case-sensitive and whole-word even without the cs flag."""
 
     SHORT = "Vy" + "rk"  # 4 characters, invented
     THREE = "Q" + "zx"

@@ -6,12 +6,12 @@ Rows below are SYNTHETIC examples; replace them with your own.
 ## Dance school
 | Topic | Keywords | Ch | Path(s) | What's there |
 |---|---|---|---|---|
-| Class schedule | timetable, term, classes | dance-school | `dance-school/classes-schedule/` | Term timetable and class cards |
-| Comms templates | parents, newsletter, reply | dance-school | `dance-school/comms/` | Templates only; roster lives elsewhere |
-| Events and recitals | recital, show, event | dance-school | `dance-school/events-recitals/` | Event plans and running orders |
-| Marketing | campaign, instagram, calendar, post | dance-school | `dance-school/marketing/` | Campaigns, post drafts, content calendar |
-| Finances | fees, summary, budget | dance-school | `dance-school/finances/` | Monthly totals only |
-| Admin | policies, insurance, suppliers | dance-school | `dance-school/admin/` | Admin index |
+| Class schedule | timetable, term, classes, groups, instructors, studio | dance-school | `dance-school/classes-schedule/` | Per-studio term timetable, group cards, instructor roles |
+| Comms templates | parents, adults, newsletter, reply | dance-school | `dance-school/comms/` | Templates only, parent and adult comms kept separate; roster lives elsewhere |
+| Events and recitals | recital, show, social, party, festival, workshop | dance-school | `dance-school/events-recitals/` | Event plans, workshops and running orders |
+| Marketing | campaign, trial, launch, instagram, facebook, whatsapp, calendar, post, metrics | dance-school | `dance-school/marketing/` | Drafts only: campaigns, post drafts, content calendar, targeting, metrics |
+| Finances | fees, passes, prices, summary, budget | dance-school | `dance-school/finances/` | Pass and price table, monthly totals only |
+| Admin | policies, consent, insurance, suppliers | dance-school | `dance-school/admin/` | Admin index, consent records (references only) |
 
 ## Other activities
 | Topic | Keywords | Ch | Path(s) | What's there |

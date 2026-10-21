@@ -36,7 +36,7 @@ The text output (default) prints one `CHECKPOINT <id>: ...` block per checkpoint
 {
   "kit_plan": 1,
   "mode": "dry-run",
-  "checkpoints": ["1", "2", "3", "4", "5a", "5b", "6", "7", "8a", "8b", "9a", "9b", "10"],
+  "checkpoints": ["1", "2", "3", "3b", "4", "5a", "5b", "6", "7", "8a", "8b", "9a", "9b", "10"],
   "items": [ ... ],
   "sha256": "<sha256 of the canonical items>"
 }

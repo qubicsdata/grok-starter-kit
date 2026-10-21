@@ -644,6 +644,15 @@ class PrivacyTextTest(unittest.TestCase):
             with self.subTest(phrase=phrase):
                 self.assertIn(phrase, text)
 
+    def test_privacy_wording_covers_adults_and_children(self):
+        for name, rel in (("README", README), ("AGENTS", AGENTS), ("checklist", CHECKLIST)):
+            text = read(rel)
+            with self.subTest(file=name):
+                self.assertNotIn("mostly " + "minors", text)
+                self.assertIn("if you work with children", text.lower())
+                self.assertIn("adults and children", text.lower())
+                self.assertIn("children's personal data", text)
+
     def test_comms_folder_keeps_the_roster_elsewhere_note(self):
         rel = os.path.join("second-brain", "dance-school", "comms", "README-roster-lives-elsewhere.md")
         text = read(rel).lower()
